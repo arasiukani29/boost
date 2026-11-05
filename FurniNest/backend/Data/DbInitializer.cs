@@ -22,6 +22,9 @@ public static class DbInitializer
         // Ensure normal / affordable price furniture pieces exist
         await SeedNormalPriceProductsAsync(context);
 
+        // Ensure newly curated high-resolution category products exist
+        await SeedCuratedCategoryProductsAsync(context);
+
         // Calibrate product prices and images to realistic, distinct values
         await CalibratePricesAndImagesAsync(context);
 
@@ -718,6 +721,165 @@ public static class DbInitializer
         }
 
         if (changed)
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public static async Task SeedCuratedCategoryProductsAsync(FurniNestDbContext context)
+    {
+        var livingRoom = await context.Categories.FirstOrDefaultAsync(c => c.Slug == "living-room");
+        var bedroom = await context.Categories.FirstOrDefaultAsync(c => c.Slug == "bedroom");
+        var diningRoom = await context.Categories.FirstOrDefaultAsync(c => c.Slug == "dining-room");
+        var homeOffice = await context.Categories.FirstOrDefaultAsync(c => c.Slug == "home-office");
+
+        if (livingRoom == null || bedroom == null || diningRoom == null || homeOffice == null)
+        {
+            return;
+        }
+
+        var newCategoryProducts = new List<Product>
+        {
+            // --- Living Room ---
+            new Product
+            {
+                Name = "Valen Sculpted Bouclé Lounge Chair",
+                Slug = "valen-sculpted-boucle-lounge-chair",
+                Description = "Ergonomically sculpted silhouette draped in ultra-tactile ivory bouclé. Reinforced with organic mortise and tenon solid walnut frame and high-density supportive foam.",
+                Price = 18499.00m,
+                OriginalPrice = 22999.00m,
+                StockQuantity = 10,
+                Dimensions = "33\"W x 35\"D x 32\"H",
+                Material = "FSC Solid Walnut Frame, Textured Ivory Bouclé Fabric",
+                Color = "Ivory Bouclé / Walnut",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = true,
+                CategoryId = livingRoom.Id
+            },
+            new Product
+            {
+                Name = "Oslo Minimalist Low Coffee Table",
+                Slug = "oslo-minimalist-low-coffee-table",
+                Description = "Organic floating profile with soft pill-shaped corners, solid exposed end-grain timber legs, and a matte protective seal that repels spills.",
+                Price = 8999.00m,
+                OriginalPrice = 11499.00m,
+                StockQuantity = 14,
+                Dimensions = "46\"W x 24\"D x 15\"H",
+                Material = "Solid American White Oak, Natural Matte Hardwax Oil",
+                Color = "Bleached Natural Oak",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = false,
+                CategoryId = livingRoom.Id
+            },
+
+            // --- Bedroom ---
+            new Product
+            {
+                Name = "Nordic Fluted Timber Platform Bed",
+                Slug = "nordic-fluted-timber-platform-bed",
+                Description = "Architecturally fluted headboard handcrafted with solid oak timber battens. Engineered with acoustic zero-squeak internal jointing and breathable curved slats.",
+                Price = 29999.00m,
+                OriginalPrice = 35999.00m,
+                StockQuantity = 6,
+                Dimensions = "86\"L x 64\"W x 44\"H",
+                Material = "Solid Appalachian White Oak, Natural Linen Upholstered Slats",
+                Color = "Natural Honey Oak",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = true,
+                CategoryId = bedroom.Id
+            },
+            new Product
+            {
+                Name = "Kyoto Floating Nightstand with Brass Pull",
+                Slug = "kyoto-floating-nightstand-with-brass-pull",
+                Description = "Clean floating side table featuring a soft-close dovetailed timber drawer and solid aged brass drawer pull. Kiln-dried to maintain perfect alignment.",
+                Price = 5499.00m,
+                OriginalPrice = 6999.00m,
+                StockQuantity = 18,
+                Dimensions = "20\"W x 16\"D x 18\"H",
+                Material = "Solid American Black Walnut, Brushed Patina Brass",
+                Color = "Smoked Walnut",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = false,
+                CategoryId = bedroom.Id
+            },
+
+            // --- Dining Room ---
+            new Product
+            {
+                Name = "Arden Oval Solid Oak Dining Table",
+                Slug = "arden-oval-solid-oak-dining-table",
+                Description = "Masterfully contoured oval dining table resting on twin fluted pedestal pillars. Generously seats 6-8 people with premium stain and heat resistance.",
+                Price = 34999.00m,
+                OriginalPrice = 42000.00m,
+                StockQuantity = 5,
+                Dimensions = "78\"L x 38\"W x 30\"H",
+                Material = "100% Solid European Oak, Eco-Certified Matte Lacquer",
+                Color = "Smoked White Oak",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = true,
+                CategoryId = diningRoom.Id
+            },
+            new Product
+            {
+                Name = "Komorebi Sculpted Wishbone Chairs (Set of 2)",
+                Slug = "komorebi-sculpted-wishbone-chairs-set-2",
+                Description = "Iconic Y-back silhouette formed by steam-bending solid ash timber, complemented by 120 meters of handwoven natural paper cord seating.",
+                Price = 12999.00m,
+                OriginalPrice = 16499.00m,
+                StockQuantity = 12,
+                Dimensions = "21\"W x 21\"D x 29\"H",
+                Material = "Steam-Bent Solid Ash Wood, Handwoven Natural Paper Cord",
+                Color = "Natural Ash / Sand Cord",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = false,
+                CategoryId = diningRoom.Id
+            },
+
+            // --- Home Office ---
+            new Product
+            {
+                Name = "Scribe Executive Walnut Writing Desk",
+                Slug = "scribe-executive-walnut-writing-desk",
+                Description = "Seamless executive work desk with chamfered edge geometry, two flush-front dovetailed drawers, and discrete integrated magnetic cord routing channel.",
+                Price = 24999.00m,
+                OriginalPrice = 31000.00m,
+                StockQuantity = 7,
+                Dimensions = "56\"W x 26\"D x 30\"H",
+                Material = "Solid American Black Walnut, Felt-Lined Cable Management Tray",
+                Color = "Rich Dark Walnut",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = true,
+                CategoryId = homeOffice.Id
+            },
+            new Product
+            {
+                Name = "Atelier Swivel Leather Desk Chair",
+                Slug = "atelier-swivel-leather-desk-chair",
+                Description = "Ergonomic pneumatic swivel chair wrapped in buttery top-grain cognac leather. Sculpted oak armrests and matte black aluminum 5-point caster base.",
+                Price = 14499.00m,
+                OriginalPrice = 18999.00m,
+                StockQuantity = 11,
+                Dimensions = "24\"W x 25\"D x 34-38\"H",
+                Material = "Top-Grain Cognac Italian Leather, Solid Oak, Aluminum Base",
+                Color = "Cognac Tan / Black Base",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1580481077197-734ed1622353?auto=format&fit=crop&w=1200&q=85",
+                IsFeatured = false,
+                CategoryId = homeOffice.Id
+            }
+        };
+
+        bool anyAdded = false;
+        foreach (var prod in newCategoryProducts)
+        {
+            if (!await context.Products.AnyAsync(p => p.Slug == prod.Slug))
+            {
+                await context.Products.AddAsync(prod);
+                anyAdded = true;
+            }
+        }
+
+        if (anyAdded)
         {
             await context.SaveChangesAsync();
         }
