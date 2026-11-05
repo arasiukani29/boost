@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurniNest — Hero Variant B: Split Day/Night Wipe Slider & Texture Drawer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --color-wood-dark: #1f1712;
+      --color-wood-amber: #c48b52;
+      --color-accent: #92400e;
+      --color-gold: #d4af37;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: #0d0a08;
+      color: #f7f3ee;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Variant Banner Switcher */
+    .variant-bar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(20, 18, 16, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .variant-pill {
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      color: rgba(255,255,255,0.6);
+      transition: all 0.2s;
+    }
+
+    .variant-pill.active {
+      background: var(--color-wood-amber);
+      color: #1a120c;
+    }
+
+    .variant-pill:hover:not(.active) {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* Top Nav */
+    .nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      background: var(--color-wood-amber);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* Split Screen Container */
+    .split-hero {
+      position: relative;
+      height: 100vh;
+      min-height: 750px;
+      width: 100%;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Left image (Day) */
+    .layer-day {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=2200&q=85');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(1.08) contrast(1.05);
+    }
+
+    /* Right image (Night / Candlelit Amber) */
+    .layer-night {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=2200&q=85');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.65) contrast(1.35) sepia(0.35) hue-rotate(-22deg);
+      clip-path: polygon(55% 0, 100% 0, 100% 100%, 55% 100%);
+    }
+
+    .night-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 75% 45%, rgba(245, 158, 11, 0.4) 0%, rgba(15, 10, 5, 0.8) 80%);
+      pointer-events: none;
+      clip-path: polygon(55% 0, 100% 0, 100% 100%, 55% 100%);
+      mix-blend-mode: screen;
+    }
+
+    /* Draggable Split Handle */
+    .split-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 55%;
+      width: 4px;
+      background: #f7d59c;
+      box-shadow: 0 0 15px rgba(247, 213, 156, 0.8), 0 0 40px rgba(0,0,0,0.8);
+      cursor: ew-resize;
+      z-index: 30;
+      transform: translateX(-50%);
+    }
+
+    .split-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #1f1712;
+      border: 2px solid #f7d59c;
+      color: #f7d59c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+    }
+
+    /* Day / Night floating labels */
+    .label-day {
+      position: absolute;
+      top: 100px;
+      left: 48px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #1a120c;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      z-index: 25;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .label-night {
+      position: absolute;
+      top: 100px;
+      right: 48px;
+      background: rgba(20, 15, 12, 0.85);
+      color: #f7d59c;
+      border: 1px solid rgba(247, 213, 156, 0.3);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      z-index: 25;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    /* Hero Text Overlay (Left Aligned, Semi-translucent backdrop) */
+    .hero-content {
+      position: absolute;
+      bottom: 120px;
+      left: 64px;
+      z-index: 28;
+      max-width: 520px;
+      background: rgba(18, 14, 11, 0.78);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 32px 36px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 24px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-buy {
+      background: var(--color-wood-amber);
+      color: #1a120c;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-buy:hover {
+      background: #dda66d;
+    }
+
+    /* Bottom Material Dock (Horizontal Bar) */
+    .bottom-material-dock {
+      position: absolute;
+      bottom: 24px;
+      right: 64px;
+      z-index: 35;
+      background: rgba(20, 16, 13, 0.9);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+
+    .dock-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #f7d59c;
+      font-weight: 700;
+    }
+
+    .swatches-strip {
+      display: flex;
+      gap: 10px;
+    }
+
+    .mini-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .mini-swatch.active {
+      border-color: #f7d59c;
+      transform: scale(1.08);
+      box-shadow: 0 4px 14px rgba(247, 213, 156, 0.4);
+    }
+
+    .mini-swatch img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-inspect-macro {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-inspect-macro:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Modal Texture Macro Inspector */
+    .macro-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .macro-modal.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 800px;
+      max-width: 90vw;
+      background: #181310;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+    }
+
+    .macro-img-wrap {
+      height: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .macro-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.3);
+      cursor: grab;
+      transition: transform 0.3s ease;
+    }
+
+    .macro-img-wrap img:hover {
+      transform: scale(2);
+    }
+
+    .macro-details {
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .modal-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .macro-tag {
+      font-size: 11px;
+      color: #f7d59c;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .macro-name {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .macro-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 24px;
+    }
+
+    .macro-specs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 16px;
+    }
+
+    .macro-specs-list div {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .macro-specs-list span:first-child {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .macro-specs-list span:last-child {
+      color: #fff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Navigation -->
+  <div class="variant-bar">
+    <span style="font-size: 11px; font-weight: 700; color: #f7d59c; padding-left: 6px;">SKETCH 001:</span>
+    <a href="variant-a.html" class="variant-pill">Variant A: Cinematic Loupe</a>
+    <a href="variant-b.html" class="variant-pill active">Variant B: Split Wipe Slider</a>
+    <a href="variant-c.html" class="variant-pill">Variant C: Kelvin Studio</a>
+  </div>
+
+  <!-- Navbar -->
+  <header class="nav">
+    <div class="brand">
+      <div class="brand-mark">🛋️</div>
+      FurniNest
+    </div>
+  </header>
+
+  <!-- Split Screen Hero -->
+  <section class="split-hero" id="splitHero">
+    <!-- Day Layer (Left) -->
+    <div class="layer-day"></div>
+    <div class="label-day">☀️ 12:00 PM • Natural Daylight</div>
+
+    <!-- Night Layer (Right with clip-path) -->
+    <div class="layer-night" id="nightLayer"></div>
+    <div class="night-glow" id="nightGlow"></div>
+    <div class="label-night">🌙 10:30 PM • Warm Hearth Glow</div>
+
+    <!-- Draggable Divider -->
+    <div class="split-divider" id="splitDivider">
+      <div class="split-handle">◀ ▶</div>
+    </div>
+
+    <!-- Floating Hero Content Box -->
+    <div class="hero-content">
+      <span style="font-size: 11px; color: #f7d59c; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;">Organic Danish Heritage</span>
+      <h1 class="hero-title">Sora Mid-Century Lounge Chair</h1>
+      <p class="hero-desc">
+        Sculpted solid American oak frame paired with top-grain cognac leather. Drag the slider to witness how the oiled wood tone evolves from morning sun to midnight sanctuary.
+      </p>
+      <div class="cta-row">
+        <button class="btn-buy">Shop Sora Chair — ₹9,499</button>
+        <span style="font-size: 12px; color: rgba(255,255,255,0.6);">Free White-Glove Delivery</span>
+      </div>
+    </div>
+
+    <!-- Bottom Dock Material Strip -->
+    <div class="bottom-material-dock">
+      <div>
+        <div class="dock-title">Finish Options</div>
+        <div style="font-size: 12px; color: #fff; font-weight: 600;" id="activeFinishLabel">Solid American White Oak</div>
+      </div>
+
+      <div class="swatches-strip">
+        <div class="mini-swatch active" onclick="setFinish('oak', this)"
+             data-name="Solid American White Oak"
+             data-img="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80"
+             data-janka="1,360 Janka" data-origin="Appalachian Forests (USA)" data-sheen="15% Ultra-Matte Hardwax">
+          <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=200&q=80" alt="Oak">
+        </div>
+        <div class="mini-swatch" onclick="setFinish('walnut', this)"
+             data-name="American Black Walnut"
+             data-img="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80"
+             data-janka="1,010 Janka" data-origin="Missouri Woodlands (USA)" data-sheen="25% Satin Linseed Hand-Rub">
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=200&q=80" alt="Walnut">
+        </div>
+        <div class="mini-swatch" onclick="setFinish('teak', this)"
+             data-name="Heritage Reclaimed Teak"
+             data-img="https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&w=1000&q=80"
+             data-janka="1,155 Janka" data-origin="Nilgiri Reserves (India)" data-sheen="Natural Beeswax Polish">
+          <img src="https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&w=200&q=80" alt="Teak">
+        </div>
+      </div>
+
+      <button class="btn-inspect-macro" onclick="openMacroModal()">
+        🔍 Inspect 4K Macro Grain
+      </button>
+    </div>
+  </section>
+
+  <!-- Modal Macro Grain Viewer -->
+  <div class="macro-modal" id="macroModal" onclick="closeOnBackdrop(event)">
+    <div class="modal-box">
+      <div class="macro-img-wrap">
+        <img id="macroModalImg" src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80" alt="Macro Grain">
+      </div>
+      <div class="macro-details">
+        <div>
+          <button class="modal-close" onclick="closeMacroModal()">✕</button>
+          <div class="macro-tag">Tactile Material Anatomy</div>
+          <h2 class="macro-name" id="macroModalName">Solid American White Oak</h2>
+          <p class="macro-desc">
+            Hover over the image to magnify grain fibers. Our timber is kiln-seasoned for 42 days to reach 8% internal moisture equilibrium, eliminating warping in tropical and air-conditioned homes.
+          </p>
+        </div>
+
+        <div class="macro-specs-list">
+          <div><span>Hardness Rating:</span><span id="modalJanka">1,360 Janka</span></div>
+          <div><span>Timber Origin:</span><span id="modalOrigin">Appalachian Forests (USA)</span></div>
+          <div><span>Finish Seal:</span><span id="modalSheen">15% Ultra-Matte Hardwax</span></div>
+          <div><span>FSC Verification:</span><span style="color: #86efac;">100% Chain-of-Custody</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Interactive Split Slider Logic
+    const container = document.getElementById('splitHero');
+    const divider = document.getElementById('splitDivider');
+    const nightLayer = document.getElementById('nightLayer');
+    const nightGlow = document.getElementById('nightGlow');
+    let isDragging = false;
+
+    function updateSplit(xPos) {
+      const rect = container.getBoundingClientRect();
+      let percent = ((xPos - rect.left) / rect.width) * 100;
+      percent = Math.max(15, Math.min(85, percent));
+
+      divider.style.left = `${percent}%`;
+      const clipStyle = `polygon(${percent}% 0, 100% 0, 100% 100%, ${percent}% 100%)`;
+      nightLayer.style.clipPath = clipStyle;
+      nightGlow.style.clipPath = clipStyle;
+    }
+
+    divider.addEventListener('mousedown', () => isDragging = true);
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) updateSplit(e.clientX);
+    });
+
+    // Touch support for mobile
+    divider.addEventListener('touchstart', () => isDragging = true);
+    window.addEventListener('touchend', () => isDragging = false);
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches[0]) updateSplit(e.touches[0].clientX);
+    });
+
+    // Material Switcher
+    let activeFinish = {
+      name: "Solid American White Oak",
+      img: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80",
+      janka: "1,360 Janka",
+      origin: "Appalachian Forests (USA)",
+      sheen: "15% Ultra-Matte Hardwax"
+    };
+
+    function setFinish(type, el) {
+      document.querySelectorAll('.mini-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+
+      activeFinish = {
+        name: el.getAttribute('data-name'),
+        img: el.getAttribute('data-img'),
+        janka: el.getAttribute('data-janka'),
+        origin: el.getAttribute('data-origin'),
+        sheen: el.getAttribute('data-sheen')
+      };
+
+      document.getElementById('activeFinishLabel').innerText = activeFinish.name;
+    }
+
+    function openMacroModal() {
+      document.getElementById('macroModalName').innerText = activeFinish.name;
+      document.getElementById('macroModalImg').src = activeFinish.img;
+      document.getElementById('modalJanka').innerText = activeFinish.janka;
+      document.getElementById('modalOrigin').innerText = activeFinish.origin;
+      document.getElementById('modalSheen').innerText = activeFinish.sheen;
+      document.getElementById('macroModal').classList.add('open');
+    }
+
+    function closeMacroModal() {
+      document.getElementById('macroModal').classList.remove('open');
+    }
+
+    function closeOnBackdrop(e) {
+      if (e.target.id === 'macroModal') closeMacroModal();
+    }
+  </script>
+</body>
+</html>

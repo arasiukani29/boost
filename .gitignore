@@ -1,0 +1,88 @@
+# ==========================================
+# Root .gitignore for Boost / FurniNest Workspace
+# ==========================================
+
+# ------------------------------------------
+# Node.js & Angular
+# ------------------------------------------
+**/node_modules/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/.angular/cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# ------------------------------------------
+# .NET & C# (Web API & Services)
+# ------------------------------------------
+**/bin/
+**/obj/
+**/TestResults/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+
+# SQLite / Local Databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+!*.seed.db
+
+# ------------------------------------------
+# Python & Graphify Caches
+# ------------------------------------------
+graphify-out/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# ------------------------------------------
+# IDEs & Developer Tooling
+# ------------------------------------------
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+.history/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+
+# ------------------------------------------
+# Operating System Files
+# ------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ------------------------------------------
+# Environment & Secrets
+# ------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
