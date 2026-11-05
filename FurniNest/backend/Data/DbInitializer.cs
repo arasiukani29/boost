@@ -661,26 +661,41 @@ public static class DbInitializer
     {
         var priceAndImageMap = new Dictionary<string, (decimal Price, decimal OriginalPrice, string ImageUrl)>
         {
+            // Living Room
             ["nordic-velvet-haven-sofa"] = (21999.00m, 26999.00m, "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80"),
             ["sora-mid-century-lounge-chair"] = (9499.00m, 12999.00m, "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80"),
             ["kyoto-minimalist-coffee-table"] = (6999.00m, 8999.00m, "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=1200&q=80"),
-            ["aura-floating-platform-bed"] = (24999.00m, 29999.00m, "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"),
-            ["cove-two-drawer-nightstand"] = (4499.00m, 5999.00m, "https://images.unsplash.com/photo-1532372576444-dda954194ad0?auto=format&fit=crop&w=1200&q=80"),
-            ["solstice-6-drawer-dresser"] = (14999.00m, 18999.00m, "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80"),
-            ["artisan-extendable-dining-table"] = (19499.00m, 24999.00m, "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80"),
-            ["elowen-cane-back-dining-chair-set-2"] = (7999.00m, 9999.00m, "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1200&q=80"),
-            ["veritas-executive-walnut-desk"] = (12499.00m, 15999.00m, "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&q=80"),
-            ["astral-ergonomic-task-chair"] = (7999.00m, 9999.00m, "https://images.unsplash.com/photo-1580481077195-c328ad45be8e?auto=format&fit=crop&w=1200&q=80"),
-            ["komorebi-solid-oak-end-table"] = (2499.00m, 3299.00m, "https://images.unsplash.com/photo-1499933374294-4584851497cc?auto=format&fit=crop&w=1200&q=80"),
-            ["nordic-linen-floor-pouf-ottoman"] = (1899.00m, 2499.00m, "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80"),
             ["zenith-2-tier-glass-coffee-table"] = (5999.00m, 7499.00m, "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=1200&q=80"),
-            ["malabar-sheesham-bedside-stool"] = (1999.00m, 2699.00m, "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1200&q=80"),
-            ["vesta-3-tier-bamboo-shoe-storage-rack"] = (1499.00m, 1999.00m, "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=80"),
+            ["komorebi-solid-oak-end-table"] = (2499.00m, 3299.00m, "https://images.unsplash.com/photo-1499933374294-4584851497cc?auto=format&fit=crop&w=1200&q=80"),
+            ["nordic-linen-floor-pouf-ottoman"] = (1899.00m, 2499.00m, "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80"),
+            ["valen-sculpted-boucle-lounge-chair"] = (18499.00m, 22999.00m, "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1200&q=80"),
+            ["oslo-minimalist-low-coffee-table"] = (8999.00m, 11499.00m, "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80"),
+
+            // Bedroom
+            ["aura-floating-platform-bed"] = (24999.00m, 29999.00m, "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"),
+            ["nordic-fluted-timber-platform-bed"] = (29999.00m, 35999.00m, "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"),
+            ["cove-two-drawer-nightstand"] = (4499.00m, 5999.00m, "https://images.unsplash.com/photo-1532372576444-dda954194ad0?auto=format&fit=crop&w=1200&q=80"),
+            ["kyoto-floating-nightstand-with-brass-pull"] = (5499.00m, 6999.00m, "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80"),
             ["haven-floating-wall-bedside-shelf"] = (2799.00m, 3499.00m, "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80"),
-            ["bistro-solid-pine-dining-stools-set-2"] = (2199.00m, 2899.00m, "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1200&q=80"),
+            ["vesta-3-tier-bamboo-shoe-storage-rack"] = (1499.00m, 1999.00m, "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=80"),
+            ["malabar-sheesham-bedside-stool"] = (1999.00m, 2699.00m, "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=80"),
+            ["solstice-6-drawer-dresser"] = (14999.00m, 18999.00m, "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1200&q=80"),
+
+            // Dining Room
+            ["artisan-extendable-dining-table"] = (19499.00m, 24999.00m, "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80"),
+            ["arden-oval-solid-oak-dining-table"] = (34999.00m, 42000.00m, "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1200&q=80"),
             ["capri-round-2-seater-cafe-table"] = (4999.00m, 6499.00m, "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=1200&q=80"),
+            ["bistro-solid-pine-dining-stools-set-2"] = (2199.00m, 2899.00m, "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1200&q=80"),
+            ["elowen-cane-back-dining-chair-set-2"] = (7999.00m, 9999.00m, "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=1200&q=80"),
+            ["komorebi-sculpted-wishbone-chairs-set-2"] = (12999.00m, 16499.00m, "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1200&q=80"),
+
+            // Home Office
+            ["veritas-executive-walnut-desk"] = (12499.00m, 15999.00m, "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&q=80"),
+            ["scribe-executive-walnut-writing-desk"] = (24999.00m, 31000.00m, "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=1200&q=80"),
             ["linear-work-from-home-study-desk"] = (3999.00m, 4999.00m, "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80"),
+            ["astral-ergonomic-task-chair"] = (7999.00m, 9999.00m, "https://images.unsplash.com/photo-1589834390005-5d4fb9bf3d32?auto=format&fit=crop&w=1200&q=80"),
             ["aero-breathable-ergonomic-desk-chair"] = (3499.00m, 4499.00m, "https://images.unsplash.com/photo-1505797149-43b0069ec26b?auto=format&fit=crop&w=1200&q=80"),
+            ["atelier-swivel-leather-desk-chair"] = (14499.00m, 18999.00m, "https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=1200&q=80"),
             ["lattice-3-tier-floating-wall-shelf"] = (1299.00m, 1699.00m, "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=1200&q=80")
         };
 
@@ -752,7 +767,7 @@ public static class DbInitializer
                 Dimensions = "33\"W x 35\"D x 32\"H",
                 Material = "FSC Solid Walnut Frame, Textured Ivory Bouclé Fabric",
                 Color = "Ivory Bouclé / Walnut",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = true,
                 CategoryId = livingRoom.Id
             },
@@ -767,7 +782,7 @@ public static class DbInitializer
                 Dimensions = "46\"W x 24\"D x 15\"H",
                 Material = "Solid American White Oak, Natural Matte Hardwax Oil",
                 Color = "Bleached Natural Oak",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = false,
                 CategoryId = livingRoom.Id
             },
@@ -784,7 +799,7 @@ public static class DbInitializer
                 Dimensions = "86\"L x 64\"W x 44\"H",
                 Material = "Solid Appalachian White Oak, Natural Linen Upholstered Slats",
                 Color = "Natural Honey Oak",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = true,
                 CategoryId = bedroom.Id
             },
@@ -799,7 +814,7 @@ public static class DbInitializer
                 Dimensions = "20\"W x 16\"D x 18\"H",
                 Material = "Solid American Black Walnut, Brushed Patina Brass",
                 Color = "Smoked Walnut",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = false,
                 CategoryId = bedroom.Id
             },
@@ -816,7 +831,7 @@ public static class DbInitializer
                 Dimensions = "78\"L x 38\"W x 30\"H",
                 Material = "100% Solid European Oak, Eco-Certified Matte Lacquer",
                 Color = "Smoked White Oak",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = true,
                 CategoryId = diningRoom.Id
             },
@@ -831,7 +846,7 @@ public static class DbInitializer
                 Dimensions = "21\"W x 21\"D x 29\"H",
                 Material = "Steam-Bent Solid Ash Wood, Handwoven Natural Paper Cord",
                 Color = "Natural Ash / Sand Cord",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = false,
                 CategoryId = diningRoom.Id
             },
@@ -848,7 +863,7 @@ public static class DbInitializer
                 Dimensions = "56\"W x 26\"D x 30\"H",
                 Material = "Solid American Black Walnut, Felt-Lined Cable Management Tray",
                 Color = "Rich Dark Walnut",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = true,
                 CategoryId = homeOffice.Id
             },
@@ -863,7 +878,7 @@ public static class DbInitializer
                 Dimensions = "24\"W x 25\"D x 34-38\"H",
                 Material = "Top-Grain Cognac Italian Leather, Solid Oak, Aluminum Base",
                 Color = "Cognac Tan / Black Base",
-                PrimaryImageUrl = "https://images.unsplash.com/photo-1580481077197-734ed1622353?auto=format&fit=crop&w=1200&q=85",
+                PrimaryImageUrl = "https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=1200&q=80",
                 IsFeatured = false,
                 CategoryId = homeOffice.Id
             }
