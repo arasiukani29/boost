@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greetings from Chicago! • The 'L' Transit Map for Tourists</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Caveat:wght@600;700&family=Kalam:wght@700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-cta-red: #c60c30;
+      --color-cta-blue: #00a1de;
+      --color-cta-brown: #62361b;
+      --color-cta-green: #009b3a;
+      --color-cta-orange: #f9461c;
+      --color-cta-purple: #522398;
+      --color-cta-pink: #e27ea6;
+      --color-cta-yellow: #f4c300;
+      --color-paper: #fbf7ee;
+      --color-paper-dark: #f0e6d2;
+      --color-ink: #2b2520;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #2e3842;
+      background-image: 
+        radial-gradient(#404b57 1px, transparent 1px),
+        linear-gradient(to bottom, #1f272e, #2e3842);
+      background-size: 20px 20px, 100% 100%;
+      color: var(--color-ink);
+      min-height: 100vh;
+    }
+
+    .font-vintage {
+      font-family: 'Bungee', cursive, sans-serif;
+    }
+
+    .font-handwriting {
+      font-family: 'Caveat', cursive, sans-serif;
+    }
+
+    .font-postcard-note {
+      font-family: 'Kalam', cursive, sans-serif;
+    }
+
+    /* Airmail vintage border */
+    .airmail-border {
+      background: repeating-linear-gradient(
+        -45deg,
+        #c60c30 0,
+        #c60c30 14px,
+        #ffffff 14px,
+        #ffffff 22px,
+        #00a1de 22px,
+        #00a1de 36px,
+        #ffffff 36px,
+        #ffffff 44px
+      );
+    }
+
+    /* Postcard paper texture simulation */
+    .postcard-paper {
+      background-color: var(--color-paper);
+      background-image: 
+        radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.7), transparent 60%),
+        radial-gradient(ellipse at bottom right, rgba(210, 190, 160, 0.35), transparent 70%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+      box-shadow: 
+        0 20px 45px -10px rgba(0, 0, 0, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset 0 0 80px rgba(210, 185, 145, 0.2);
+    }
+
+    /* Custom scrollbar for stops list */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 7px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* Line transition animations */
+    .metro-line {
+      transition: stroke-opacity 0.35s ease, stroke-width 0.35s ease, filter 0.35s ease;
+      cursor: pointer;
+    }
+
+    .metro-line.dimmed {
+      stroke-opacity: 0.15 !important;
+      filter: grayscale(80%);
+    }
+
+    .metro-line.highlighted {
+      stroke-opacity: 1 !important;
+      stroke-width: 9px !important;
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+
+    .station-node {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, fill 0.3s ease;
+      cursor: pointer;
+    }
+
+    .station-node.dimmed {
+      opacity: 0.2;
+    }
+
+    .station-node.active-station {
+      transform: scale(1.4);
+      stroke: #ffffff;
+      stroke-width: 2.5px;
+    }
+
+    .landmark-pin {
+      transition: transform 0.25s ease, filter 0.25s ease;
+      cursor: pointer;
+    }
+    .landmark-pin:hover {
+      transform: scale(1.15) translateY(-3px);
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+    }
+
+    /* Stamp perforations */
+    .postage-stamp {
+      position: relative;
+      background: #fbf7ee;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 4px dashed #bd3b3b;
+    }
+
+    /* Wave postmark */
+    .postmark-wavy {
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 6px,
+        rgba(43, 37, 32, 0.3) 6px,
+        rgba(43, 37, 32, 0.3) 8px
+      );
+    }
+
+    /* Pulse animation for current line terminus */
+    @keyframes pulseRing {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      70% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .pulse-ring {
+      animation: pulseRing 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+      transform-origin: center;
+    }
+
+    /* Vintage Ticket Stub & Perforation Styling */
+    .vintage-ticket {
+      background-color: #fffef9;
+      background-image: 
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 70%),
+        radial-gradient(circle at bottom right, rgba(220, 205, 175, 0.3), transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.012) 3px, rgba(0, 0, 0, 0.012) 6px);
+      box-shadow: 
+        0 15px 35px -5px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(180, 160, 130, 0.4);
+    }
+
+    .ticket-edge-notches {
+      position: relative;
+    }
+    .ticket-edge-notches::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      background-color: var(--color-paper);
+      border-radius: 50%;
+      border-right: 2px solid #b89b72;
+      box-shadow: inset -2px 0 3px rgba(0,0,0,0.12);
+      z-index: 5;
+    }
+    .ticket-edge-notches::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      background-color: var(--color-paper);
+      border-radius: 50%;
+      border-left: 2px solid #b89b72;
+      box-shadow: inset 2px 0 3px rgba(0,0,0,0.12);
+      z-index: 5;
+    }
+  </style>
+</head>
+<body class="p-3 md:p-6 lg:p-8 antialiased flex justify-center items-start">
+
+  <!-- Main Postcard Wrapper -->
+  <div class="w-full max-w-7xl airmail-border p-3 md:p-4 rounded-3xl shadow-2xl">
+    <div class="postcard-paper rounded-2xl p-4 md:p-6 lg:p-8 border-4 border-[#efe6d4] relative overflow-hidden">
+      
+      <!-- Top Decorative Ribbon / Postcard Header -->
+      <header class="relative border-b-2 border-dashed border-[#d8c8b0] pb-5 mb-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          <!-- Postcard Title & Greeting -->
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100/90 border border-amber-300 rounded-full text-xs font-bold text-amber-900 tracking-wide uppercase shadow-sm">
+              <span>★ Official Chicago Visitor's Transit Guide ★</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-vintage text-[#b63030] tracking-wider mt-1 drop-shadow-sm flex items-center flex-wrap gap-2">
+              <span>GREETINGS FROM</span>
+              <span class="text-[#0e5c94] underline decoration-wavy decoration-[#e5a034] decoration-2">CHICAGO!</span>
+            </h1>
+            <p class="font-handwriting text-xl md:text-2xl text-[#5b4a3c] -mt-1 font-semibold">
+              Ride the iconic Chicago "L" Rapid Transit • 8 Historic Lines • Endless Adventures!
+            </p>
+          </div>
+
+          <!-- Vintage Postal Stamp & Cancellation Mark -->
+          <div class="flex items-center gap-3 self-end lg:self-center">
+            
+            <!-- Rubber stamp postmark -->
+            <div class="relative w-28 h-28 rounded-full border-2 border-dashed border-red-800/60 p-1 flex flex-col items-center justify-center text-center transform -rotate-12 select-none pointer-events-none">
+              <span class="text-[9px] font-mono tracking-widest text-red-900/80 uppercase font-bold">CTA TRANSIT POST</span>
+              <div class="w-full border-t border-red-800/40 my-0.5"></div>
+              <span class="text-xs font-vintage text-red-900 leading-tight">WINDY CITY<br>ILLINOIS</span>
+              <div class="w-full border-t border-red-800/40 my-0.5"></div>
+              <span class="text-[10px] font-mono text-red-900/80 font-bold">1892 • ELEVATED</span>
+            </div>
+
+            <!-- Postage Stamp -->
+            <div class="postage-stamp w-20 h-24 p-1.5 flex flex-col justify-between items-center bg-[#fffbf2] shadow-md transform rotate-3">
+              <div class="flex justify-between w-full text-[9px] font-bold text-red-800">
+                <span>USA</span>
+                <span>$2.50</span>
+              </div>
+              <!-- Small iconic train illustration -->
+              <div class="w-full h-12 bg-sky-100 rounded border border-sky-300 flex items-center justify-center text-2xl">
+                🚇
+              </div>
+              <div class="text-[8px] font-vintage text-center text-zinc-700 leading-none">
+                THE LOOP
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Filter Badges / Travel Mode -->
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#e8dcc8]">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#6c5949] flex items-center gap-1">
+              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+              Tourist Filters:
+            </span>
+            <button onclick="filterLandmarks('all')" id="filter-all" class="filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-zinc-800 text-white shadow-sm transition hover:bg-zinc-700">
+              🌟 All Sights
+            </button>
+            <button onclick="filterLandmarks('airports')" id="filter-airports" class="filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white/80 hover:bg-white text-zinc-700 border border-zinc-300 shadow-sm transition">
+              ✈️ Airports (ORD/MDW)
+            </button>
+            <button onclick="filterLandmarks('culture')" id="filter-culture" class="filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white/80 hover:bg-white text-zinc-700 border border-zinc-300 shadow-sm transition">
+              🏛️ Museums & Art
+            </button>
+            <button onclick="filterLandmarks('nature')" id="filter-nature" class="filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white/80 hover:bg-white text-zinc-700 border border-zinc-300 shadow-sm transition">
+              🌿 Waterfront & Parks
+            </button>
+            <button onclick="filterLandmarks('sports')" id="filter-sports" class="filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white/80 hover:bg-white text-zinc-700 border border-zinc-300 shadow-sm transition">
+              ⚾ Sports & Stadiums
+            </button>
+          </div>
+
+          <!-- Quick audio / sfx chime toggle & quick help -->
+          <div class="flex items-center gap-2 sm:gap-3 text-xs text-[#6e5d4e] flex-wrap">
+            <a href="#trip-calculator" class="flex items-center gap-1.5 px-3 py-1 rounded-md bg-red-100/90 hover:bg-red-200 border border-red-300 font-bold text-red-950 shadow-xs transition">
+              <span>🎟️</span>
+              <span>Fare Calculator</span>
+            </a>
+            <button onclick="toggleAudio()" id="sound-btn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 hover:bg-amber-100 font-medium text-amber-900 transition">
+              <span id="sound-icon">🔔</span>
+              <span id="sound-text">Chimes On</span>
+            </button>
+            <button onclick="resetMapView()" class="px-2.5 py-1 rounded-md bg-white border border-stone-300 hover:bg-stone-50 font-medium text-stone-700 transition">
+              ⟲ Reset Map
+            </button>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- Line Selector Buttons (Key interactive element!) -->
+      <section class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-[#524132] flex items-center gap-1.5">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600"></span>
+            Select a Train Line to Highlight & Explore:
+          </h2>
+          <span class="text-xs text-[#7e6955] italic hidden sm:inline">Click any line button below to illuminate its route</span>
+        </div>
+
+        <!-- Buttons Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2">
+          
+          <!-- Red Line -->
+          <button onclick="selectLine('red')" id="btn-red" class="line-btn group relative p-2.5 rounded-xl border-2 border-red-700 bg-white hover:bg-red-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#c60c30] ring-2 ring-red-200"></span>
+              <span class="font-bold text-xs text-red-950 uppercase tracking-tight">Red</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">24/7 Subway & Wrigley</div>
+          </button>
+
+          <!-- Blue Line -->
+          <button onclick="selectLine('blue')" id="btn-blue" class="line-btn group relative p-2.5 rounded-xl border-2 border-sky-600 bg-white hover:bg-sky-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#00a1de] ring-2 ring-sky-200"></span>
+              <span class="font-bold text-xs text-sky-950 uppercase tracking-tight">Blue</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">O'Hare to Loop</div>
+          </button>
+
+          <!-- Brown Line -->
+          <button onclick="selectLine('brown')" id="btn-brown" class="line-btn group relative p-2.5 rounded-xl border-2 border-[#62361b] bg-white hover:bg-amber-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#62361b] ring-2 ring-amber-200"></span>
+              <span class="font-bold text-xs text-[#402311] uppercase tracking-tight">Brown</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Scenic River Views</div>
+          </button>
+
+          <!-- Green Line -->
+          <button onclick="selectLine('green')" id="btn-green" class="line-btn group relative p-2.5 rounded-xl border-2 border-emerald-600 bg-white hover:bg-emerald-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#009b3a] ring-2 ring-emerald-200"></span>
+              <span class="font-bold text-xs text-emerald-950 uppercase tracking-tight">Green</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Oak Park & West Loop</div>
+          </button>
+
+          <!-- Orange Line -->
+          <button onclick="selectLine('orange')" id="btn-orange" class="line-btn group relative p-2.5 rounded-xl border-2 border-orange-600 bg-white hover:bg-orange-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#f9461c] ring-2 ring-orange-200"></span>
+              <span class="font-bold text-xs text-orange-950 uppercase tracking-tight">Orange</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Midway Airport Link</div>
+          </button>
+
+          <!-- Purple Line -->
+          <button onclick="selectLine('purple')" id="btn-purple" class="line-btn group relative p-2.5 rounded-xl border-2 border-purple-700 bg-white hover:bg-purple-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#522398] ring-2 ring-purple-200"></span>
+              <span class="font-bold text-xs text-purple-950 uppercase tracking-tight">Purple</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Evanston & Loop Exp</div>
+          </button>
+
+          <!-- Pink Line -->
+          <button onclick="selectLine('pink')" id="btn-pink" class="line-btn group relative p-2.5 rounded-xl border-2 border-pink-500 bg-white hover:bg-pink-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#e27ea6] ring-2 ring-pink-200"></span>
+              <span class="font-bold text-xs text-pink-950 uppercase tracking-tight">Pink</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Pilsen Art Murals</div>
+          </button>
+
+          <!-- Yellow Line -->
+          <button onclick="selectLine('yellow')" id="btn-yellow" class="line-btn group relative p-2.5 rounded-xl border-2 border-amber-500 bg-white hover:bg-amber-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-[#f4c300] ring-2 ring-amber-200"></span>
+              <span class="font-bold text-xs text-amber-950 uppercase tracking-tight">Yellow</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Skokie Swift Nonstop</div>
+          </button>
+
+          <!-- The Loop Special Button -->
+          <button onclick="selectLine('theloop')" id="btn-theloop" class="line-btn group relative p-2.5 rounded-xl border-2 border-indigo-400 bg-white hover:bg-indigo-50 text-left transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-indigo-600"></span>
+              <span class="font-bold text-xs text-indigo-950 uppercase tracking-tight">The Loop</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 font-medium leading-tight">Elevated Historic Ring</div>
+          </button>
+
+          <!-- All Lines Overview -->
+          <button onclick="selectLine('all')" id="btn-all" class="line-btn active-state group relative p-2.5 rounded-xl border-2 border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 text-left transition-all duration-200 shadow-md hover:-translate-y-0.5 active:translate-y-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-4 h-4 rounded-full bg-amber-400 ring-2 ring-zinc-700"></span>
+              <span class="font-bold text-xs text-amber-200 uppercase tracking-tight">All Lines</span>
+            </div>
+            <div class="text-[11px] text-zinc-300 font-medium leading-tight">System Map View</div>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- Main Interactive Content: 2-Column Split (Map + Postcard Guide Panel) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Interactive Map Canvas Container (7 cols) -->
+        <div class="lg:col-span-7 bg-[#f6f0e2] rounded-2xl border-2 border-[#decfb8] shadow-inner p-2 sm:p-4 relative overflow-hidden">
+          
+          <!-- Map Title Bar inside parchment frame -->
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#ebdcc7] text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-vintage text-[#7e2222] tracking-wider text-sm">CHICAGO RAPID TRANSIT ("L")</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 text-[10px]">Schematic View</span>
+            </div>
+            <div class="text-[#7d6b5b] font-medium hidden sm:block">
+              Hover pins for tourist sights • Click line to focus
+            </div>
+          </div>
+
+          <!-- SVG Interactive Transit Map -->
+          <div class="relative w-full aspect-[4/3] sm:aspect-[1.15/1] overflow-hidden rounded-xl bg-[#eef3f7] border border-[#d6e0e8]">
+            <svg id="cta-map" viewBox="0 0 1000 850" class="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <!-- Lake Michigan Water Pattern -->
+                <pattern id="waterWaves" width="40" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M0 10 Q 10 5, 20 10 T 40 10" fill="none" stroke="#b4d7ea" stroke-width="1.5" stroke-opacity="0.6"/>
+                </pattern>
+                
+                <!-- Drop shadow filters -->
+                <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+                  <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                </filter>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- LAKE MICHIGAN (East Coastline) -->
+              <path d="M 720 0 
+                       C 730 120, 710 200, 700 320 
+                       C 690 400, 680 430, 690 470
+                       C 700 520, 740 560, 750 640
+                       C 760 720, 780 780, 800 850
+                       L 1000 850 L 1000 0 Z" 
+                    fill="#d8eaf4" stroke="#adcfe2" stroke-width="2"/>
+              <rect x="700" y="0" width="300" height="850" fill="url(#waterWaves)" opacity="0.8"/>
+              
+              <!-- Lake Michigan Text -->
+              <text x="860" y="240" fill="#4d82a3" font-family="'Caveat', cursive" font-size="28" font-weight="700" letter-spacing="2" transform="rotate(25, 860, 240)">
+                Lake Michigan
+              </text>
+              <text x="880" y="270" fill="#6ba0be" font-size="12" font-weight="600" letter-spacing="1" transform="rotate(25, 860, 240)">
+                (Beaches, Sailing & Navy Pier)
+              </text>
+
+              <!-- Sailboat graphic on Lake Michigan -->
+              <g transform="translate(850, 480) scale(0.9)" opacity="0.75">
+                <path d="M 0 10 L 25 10 L 20 18 L 5 18 Z" fill="#b85d38"/>
+                <path d="M 12 8 L 12 -18 L 22 8 Z" fill="#ffffff" stroke="#7ea4b9"/>
+                <path d="M 10 8 L 10 -14 L 0 8 Z" fill="#f0eae1" stroke="#7ea4b9"/>
+              </g>
+
+              <!-- CHICAGO RIVER WATERWAYS -->
+              <!-- North Branch -->
+              <path d="M 440 40 Q 460 200 500 380 L 530 400" 
+                    fill="none" stroke="#99c6de" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 440 40 Q 460 200 500 380 L 530 400" 
+                    fill="none" stroke="#7ab4d1" stroke-width="10" stroke-linecap="round"/>
+
+              <!-- Main Stem to Lake -->
+              <path d="M 530 400 L 700 400" 
+                    fill="none" stroke="#99c6de" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 530 400 L 700 400" 
+                    fill="none" stroke="#7ab4d1" stroke-width="10" stroke-linecap="round"/>
+              
+              <!-- South Branch -->
+              <path d="M 530 400 L 530 540 Q 520 620 440 700 L 380 750" 
+                    fill="none" stroke="#99c6de" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 530 400 L 530 540 Q 520 620 440 700 L 380 750" 
+                    fill="none" stroke="#7ab4d1" stroke-width="10" stroke-linecap="round"/>
+
+              <text x="560" y="392" fill="#2d6a8a" font-family="'Caveat', cursive" font-size="16" font-weight="700">
+                Chicago River
+              </text>
+
+              <!-- THE HISTORIC LOOP ELEVATED HIGHLIGHT RECTANGLE -->
+              <g id="the-loop-outline" class="transition-all duration-300">
+                <rect x="548" y="388" width="76" height="84" rx="8" 
+                      fill="rgba(255, 240, 200, 0.45)" stroke="#665544" stroke-width="2" stroke-dasharray="4 2"/>
+                <text x="586" y="434" text-anchor="middle" fill="#7a624d" font-family="'Bungee', cursive" font-size="10" opacity="0.75">
+                  THE LOOP
+                </text>
+              </g>
+
+              <!-- ================= CTA TRANSIT LINES PATHS ================= -->
+              
+              <!-- YELLOW LINE (Skokie Swift) -->
+              <g id="line-group-yellow">
+                <path id="path-yellow" class="metro-line" data-line="yellow"
+                      d="M 450 50 L 550 50 L 640 50" 
+                      fill="none" stroke="#f4c300" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="440" y="38" fill="#a37e00" font-size="11" font-weight="700">Yellow Line</text>
+              </g>
+
+              <!-- PURPLE LINE (Evanston Express) -->
+              <g id="line-group-purple">
+                <path id="path-purple" class="metro-line" data-line="purple"
+                      d="M 640 10 L 640 50 L 640 140 Q 640 240 600 300 L 560 360 L 550 390 L 550 470 L 620 470 L 620 390 L 550 390" 
+                      fill="none" stroke="#522398" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="650" y="24" fill="#522398" font-size="11" font-weight="700">Purple Line</text>
+              </g>
+
+              <!-- RED LINE (Howard to 95th/Dan Ryan via State Subway) -->
+              <g id="line-group-red">
+                <path id="path-red" class="metro-line" data-line="red"
+                      d="M 640 50 
+                         L 640 160 
+                         L 630 230 
+                         L 610 290 
+                         L 610 370 
+                         L 600 400 
+                         L 600 480 
+                         L 600 560 
+                         L 590 640 
+                         L 590 730 
+                         L 590 820" 
+                      fill="none" stroke="#c60c30" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="648" y="70" fill="#c60c30" font-size="11" font-weight="700">Red Line</text>
+              </g>
+
+              <!-- BLUE LINE (O'Hare through Logan Sq, Loop Subway to Forest Park) -->
+              <g id="line-group-blue">
+                <path id="path-blue" class="metro-line" data-line="blue"
+                      d="M 120 140 
+                         L 240 180 
+                         L 360 250 
+                         L 450 320 
+                         L 530 380 
+                         L 570 410 
+                         L 570 460 
+                         L 540 480 
+                         L 460 500 
+                         L 320 500 
+                         L 170 500" 
+                      fill="none" stroke="#00a1de" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="110" y="125" fill="#0080b0" font-size="11" font-weight="700">Blue Line (O'Hare)</text>
+              </g>
+
+              <!-- BROWN LINE (Kimball to Loop Elevated) -->
+              <g id="line-group-brown">
+                <path id="path-brown" class="metro-line" data-line="brown"
+                      d="M 400 110 
+                         L 510 110 
+                         L 570 180 
+                         L 620 230 
+                         L 600 290 
+                         L 560 340 
+                         L 540 375 
+                         L 550 390 
+                         L 620 390 
+                         L 620 470 
+                         L 550 470 
+                         L 550 390" 
+                      fill="none" stroke="#62361b" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="360" y="98" fill="#62361b" font-size="11" font-weight="700">Brown Line</text>
+              </g>
+
+              <!-- GREEN LINE (Oak Park to Loop to South Side) -->
+              <g id="line-group-green">
+                <path id="path-green" class="metro-line" data-line="green"
+                      d="M 100 390 
+                         L 330 390 
+                         L 470 390 
+                         L 550 390 
+                         L 620 390 
+                         L 620 480 
+                         L 620 570 
+                         L 620 660 
+                         L 650 720 
+                         L 680 770" 
+                      fill="none" stroke="#009b3a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <path id="path-green-branch" class="metro-line" data-line="green"
+                      d="M 620 660 L 540 720 L 510 760" 
+                      fill="none" stroke="#009b3a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="90" y="378" fill="#007e2f" font-size="11" font-weight="700">Green Line</text>
+              </g>
+
+              <!-- ORANGE LINE (Midway Airport to Loop Elevated) -->
+              <g id="line-group-orange">
+                <path id="path-orange" class="metro-line" data-line="orange"
+                      d="M 160 700 
+                         L 270 650 
+                         L 410 590 
+                         L 510 540 
+                         L 550 490 
+                         L 550 390 
+                         L 620 390 
+                         L 620 470 
+                         L 550 470" 
+                      fill="none" stroke="#f9461c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="140" y="725" fill="#d83610" font-size="11" font-weight="700">Orange Line (Midway)</text>
+              </g>
+
+              <!-- PINK LINE (54th/Cermak & Pilsen to Loop) -->
+              <g id="line-group-pink">
+                <path id="path-pink" class="metro-line" data-line="pink"
+                      d="M 220 590 
+                         L 340 590 
+                         L 440 550 
+                         L 470 480 
+                         L 470 390 
+                         L 550 390 
+                         L 620 390 
+                         L 620 470 
+                         L 550 470 
+                         L 550 390" 
+                      fill="none" stroke="#e27ea6" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="190" y="612" fill="#c45683" font-size="11" font-weight="700">Pink Line</text>
+              </g>
+
+              <!-- ================= STATIONS & TRANSFER HUBS ================= -->
+              <g id="stations-layer">
+                <circle cx="120" cy="140" r="7" fill="#ffffff" stroke="#00a1de" stroke-width="4" class="station-node" data-stop="ohare" onclick="showStationInfo('ohare')"/>
+                <circle cx="360" cy="250" r="5" fill="#ffffff" stroke="#00a1de" stroke-width="3" class="station-node" data-stop="logan" onclick="showStationInfo('logan')"/>
+                <circle cx="450" cy="320" r="5" fill="#ffffff" stroke="#00a1de" stroke-width="3" class="station-node" data-stop="damen" onclick="showStationInfo('damen')"/>
+                <circle cx="640" cy="50" r="8" fill="#ffffff" stroke="#333333" stroke-width="4" class="station-node" data-stop="howard" onclick="showStationInfo('howard')"/>
+                <circle cx="630" cy="230" r="6" fill="#ffffff" stroke="#c60c30" stroke-width="4" class="station-node" data-stop="addison" onclick="showStationInfo('addison')"/>
+                <circle cx="605" cy="295" r="7" fill="#ffffff" stroke="#333333" stroke-width="3.5" class="station-node" data-stop="fullerton" onclick="showStationInfo('fullerton')"/>
+                <circle cx="600" cy="370" r="5.5" fill="#ffffff" stroke="#c60c30" stroke-width="3.5" class="station-node" data-stop="chicago-red" onclick="showStationInfo('chicago-red')"/>
+                <circle cx="540" cy="375" r="5.5" fill="#ffffff" stroke="#62361b" stroke-width="3.5" class="station-node" data-stop="mart" onclick="showStationInfo('mart')"/>
+                <circle cx="550" cy="390" r="8" fill="#ffffff" stroke="#222222" stroke-width="4.5" class="station-node" data-stop="clark-lake" onclick="showStationInfo('clark-lake')"/>
+                <circle cx="600" cy="390" r="6" fill="#ffffff" stroke="#c60c30" stroke-width="3" class="station-node" data-stop="state-lake" onclick="showStationInfo('state-lake')"/>
+                <circle cx="620" cy="445" r="7" fill="#ffffff" stroke="#009b3a" stroke-width="3.5" class="station-node" data-stop="adams-wabash" onclick="showStationInfo('adams-wabash')"/>
+                <circle cx="585" cy="470" r="6" fill="#ffffff" stroke="#665544" stroke-width="3" class="station-node" data-stop="library" onclick="showStationInfo('library')"/>
+                <circle cx="600" cy="510" r="8" fill="#ffffff" stroke="#111111" stroke-width="4" class="station-node" data-stop="roosevelt" onclick="showStationInfo('roosevelt')"/>
+                <circle cx="590" cy="570" r="6" fill="#ffffff" stroke="#c60c30" stroke-width="3.5" class="station-node" data-stop="chinatown" onclick="showStationInfo('chinatown')"/>
+                <circle cx="590" cy="640" r="6" fill="#ffffff" stroke="#c60c30" stroke-width="3.5" class="station-node" data-stop="sox" onclick="showStationInfo('sox')"/>
+                <circle cx="160" cy="700" r="7" fill="#ffffff" stroke="#f9461c" stroke-width="4" class="station-node" data-stop="midway" onclick="showStationInfo('midway')"/>
+                <circle cx="440" cy="550" r="6" fill="#ffffff" stroke="#e27ea6" stroke-width="3.5" class="station-node" data-stop="pilsen" onclick="showStationInfo('pilsen')"/>
+                <circle cx="470" cy="390" r="6" fill="#ffffff" stroke="#009b3a" stroke-width="3.5" class="station-node" data-stop="clinton" onclick="showStationInfo('clinton')"/>
+                <circle cx="100" cy="390" r="6" fill="#ffffff" stroke="#009b3a" stroke-width="3.5" class="station-node" data-stop="oakpark" onclick="showStationInfo('oakpark')"/>
+                <circle cx="450" cy="50" r="6" fill="#ffffff" stroke="#f4c300" stroke-width="3.5" class="station-node" data-stop="skokie" onclick="showStationInfo('skokie')"/>
+                <circle cx="640" cy="10" r="6" fill="#ffffff" stroke="#522398" stroke-width="3.5" class="station-node" data-stop="linden" onclick="showStationInfo('linden')"/>
+              </g>
+
+              <!-- ================= TOURIST LANDMARKS & PINS ================= -->
+              <g id="landmarks-layer">
+                <g class="landmark-pin" data-cat="sports" onclick="showStationInfo('addison')" transform="translate(645, 215)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#003278" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">⚾</text>
+                  <text x="16" y="2" fill="#002d6a" font-weight="700" font-size="11">Wrigley Field</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="nature" onclick="showStationInfo('grand')" transform="translate(735, 370)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#0077b6" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🎡</text>
+                  <text x="16" y="2" fill="#005b8c" font-weight="700" font-size="11">Navy Pier</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('adams-wabash')" transform="translate(640, 415)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#5c677d" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">✨</text>
+                  <text x="16" y="3" fill="#2b2d42" font-weight="700" font-size="11">The Bean & Park</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('adams-wabash')" transform="translate(640, 445)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#a4161a" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🏛️</text>
+                  <text x="16" y="3" fill="#660708" font-weight="700" font-size="11">Art Institute</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('roosevelt')" transform="translate(670, 525)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#1b4965" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🦕</text>
+                  <text x="16" y="3" fill="#0f2b3c" font-weight="700" font-size="11">Museum Campus</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('quincy')" transform="translate(500, 455)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#343a40" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🏢</text>
+                  <text x="-8" y="22" fill="#212529" font-weight="700" font-size="10">Willis Tower</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="airports" onclick="showStationInfo('ohare')" transform="translate(110, 165)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#0077b6" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">✈️</text>
+                  <text x="16" y="3" fill="#004d74" font-weight="700" font-size="11">O'Hare Airport</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="airports" onclick="showStationInfo('midway')" transform="translate(130, 680)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#f9461c" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">✈️</text>
+                  <text x="-10" y="24" fill="#b32604" font-weight="700" font-size="11">Midway Airport</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('clinton')" transform="translate(435, 365)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#bc4749" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🍕</text>
+                  <text x="-4" y="-16" fill="#802123" font-weight="700" font-size="10">Fulton Market</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="sports" onclick="showStationInfo('sox')" transform="translate(605, 650)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#212529" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">⚾</text>
+                  <text x="16" y="3" fill="#111111" font-weight="700" font-size="11">White Sox</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('chinatown')" transform="translate(545, 580)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#b91c1c" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🥟</text>
+                  <text x="-8" y="24" fill="#7f1d1d" font-weight="700" font-size="10">Chinatown</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('pilsen')" transform="translate(420, 520)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#c026d3" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🎨</text>
+                  <text x="-12" y="-15" fill="#86198f" font-weight="700" font-size="10">Pilsen Murals</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="culture" onclick="showStationInfo('oakpark')" transform="translate(90, 420)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#2d6a4f" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🏡</text>
+                  <text x="-5" y="24" fill="#1b4332" font-weight="700" font-size="10">FLW Oak Park</text>
+                </g>
+
+                <g class="landmark-pin" data-cat="nature" onclick="showStationInfo('fullerton')" transform="translate(635, 310)">
+                  <rect x="-10" y="-12" width="22" height="22" rx="4" fill="#2d6a4f" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="1" y="4" text-anchor="middle" font-size="12">🦁</text>
+                  <text x="16" y="3" fill="#1b4332" font-weight="700" font-size="11">Lincoln Park Zoo</text>
+                </g>
+              </g>
+
+              <!-- Compass Rose -->
+              <g transform="translate(100, 80) scale(0.7)" opacity="0.65">
+                <circle cx="0" cy="0" r="32" fill="none" stroke="#685746" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#685746" stroke-width="0.8" stroke-dasharray="2 2"/>
+                <polygon points="0,-30 6,-8 0,0 -6,-8" fill="#a83232"/>
+                <polygon points="0,30 6,8 0,0 -6,8" fill="#685746"/>
+                <polygon points="30,0 8,6 0,0 8,-6" fill="#685746"/>
+                <polygon points="-30,0 -8,6 0,0 -8,-6" fill="#685746"/>
+                <text x="0" y="-35" text-anchor="middle" font-family="'Bungee', cursive" font-size="12" font-weight="bold" fill="#a83232">N</text>
+              </g>
+            </svg>
+          </div>
+
+          <div class="mt-2 text-center text-xs text-[#7d6854]">
+            <span>💡 <strong>Tourist Tip:</strong> All elevated lines circle the historic Downtown <em>Loop</em> ring! Transfers between elevated lines in the Loop are free.</span>
+          </div>
+        </div>
+
+        <!-- Tourist Guide & Stops Info Panel (Postcard Message Side - 5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div id="postcard-detail-card" class="bg-white/95 rounded-2xl p-5 border-2 border-[#d9cbb4] shadow-md relative overflow-hidden transition-all duration-300">
+            
+            <div class="absolute top-4 right-4 flex items-center gap-1.5 opacity-80 pointer-events-none">
+              <span class="text-xs font-vintage text-[#b63030]">CTA GUIDE</span>
+              <span class="w-2.5 h-2.5 rounded-full" id="line-color-pill" style="background-color: #333333;"></span>
+            </div>
+
+            <div class="mb-3 pr-20">
+              <span id="card-badge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-zinc-800 mb-1">
+                Overview Mode
+              </span>
+              <h3 id="card-title" class="text-2xl font-vintage text-zinc-900 leading-tight">
+                Chicago 'L' System
+              </h3>
+              <p id="card-subtitle" class="font-handwriting text-lg text-zinc-600 font-bold -mt-0.5">
+                The pulse of the Windy City since 1892
+              </p>
+            </div>
+
+            <div id="card-description" class="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-950 leading-relaxed mb-4">
+              Select any train line from the top bar to inspect its exact route, tourist attractions, airport connections, and must-visit stops.
+            </div>
+
+            <div class="flex items-center justify-between mb-2 pb-1 border-b border-zinc-200">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1">
+                <span>📍</span>
+                <span id="stops-header-title">Key Tourist Stops & Landmarks</span>
+              </h4>
+              <span id="stops-count" class="text-[11px] font-bold text-zinc-500">
+                12 Highlights
+              </span>
+            </div>
+
+            <div id="stops-list" class="custom-scrollbar space-y-2 max-h-[340px] overflow-y-auto pr-1"></div>
+
+            <div class="mt-4 pt-3 border-t-2 border-dashed border-[#dfd2be] bg-[#faf6ed] -mx-5 -mb-5 p-4 rounded-b-2xl">
+              <div class="flex items-start gap-2">
+                <span class="text-xl">📮</span>
+                <div>
+                  <div class="font-handwriting text-lg font-bold text-[#8c3822] leading-none mb-1">
+                    Conductor's Secret Tourist Note:
+                  </div>
+                  <p id="local-tip" class="font-postcard-note text-xs text-[#524132] leading-snug">
+                    "Grab a Ventra Card or tap with Apple/Google Pay at any turnstile ($2.50 standard fare). For the ultimate skyline photos, ride the Brown Line over the Chicago River into the Loop at golden hour!"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#faf4e6] border-2 border-[#e0d3bf] rounded-xl p-4 text-xs text-[#594738] shadow-sm">
+            <h5 class="font-bold uppercase tracking-wider text-zinc-800 text-[11px] mb-2 flex items-center gap-1">
+              <span>🎟️</span> Tourist Quick Essentials
+            </h5>
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <div class="bg-white/80 p-2 rounded-lg border border-[#e4d8c7]">
+                <strong class="text-zinc-900 block font-semibold">💳 Easy Tap & Go</strong>
+                <span>Tap any contactless credit card or phone at turnstiles!</span>
+              </div>
+              <div class="bg-white/80 p-2 rounded-lg border border-[#e4d8c7]">
+                <strong class="text-zinc-900 block font-semibold">🎫 1-Day Pass: $5</strong>
+                <span>Unlimited 24-hr rides on all 'L' trains & CTA buses.</span>
+              </div>
+              <div class="bg-white/80 p-2 rounded-lg border border-[#e4d8c7]">
+                <strong class="text-zinc-900 block font-semibold">✈️ Airport Links</strong>
+                <span>Blue Line to O'Hare ($5 from ORD) • Orange to Midway ($2.50).</span>
+              </div>
+              <div class="bg-white/80 p-2 rounded-lg border border-[#e4d8c7]">
+                <strong class="text-zinc-900 block font-semibold">🕒 24/7 Operations</strong>
+                <span>Red & Blue Lines run 24 hours every day of the year!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TRIP TIME & FARE CALCULATOR: 1892 SOUVENIR TICKET BOOTH ================= -->
+      <section id="trip-calculator" class="mt-8 pt-6 border-t-2 border-dashed border-[#d8c8b0]">
+        
+        <!-- Section Header with Vintage Typography & Badges -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-100 text-red-900 border border-red-300 text-[11px] font-bold uppercase tracking-wider mb-1">
+              <span>🎟️ 1892 Rapid Transit Ticket Office</span>
+              <span>•</span>
+              <span>Official Ventra & Cash Rates</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-vintage text-[#7e2222] tracking-wide flex items-center gap-2">
+              <span>TRIP TIME & FARE CALCULATOR</span>
+            </h2>
+            <p class="font-handwriting text-base sm:text-lg text-[#614e3e] font-semibold -mt-0.5">
+              Plan your journey across the 'L' elevated & subway lines • Instant fare, travel minutes & route itinerary!
+            </p>
+          </div>
+
+          <!-- Quick Jump / Info Stamp -->
+          <div class="hidden sm:flex items-center gap-2 px-3 py-2 bg-amber-50/90 border border-amber-300 rounded-xl text-xs text-amber-950 shadow-xs">
+            <span class="text-xl">🛎️</span>
+            <div class="leading-tight">
+              <span class="font-bold block text-amber-900">Conductor's Counter</span>
+              <span class="text-[10px] text-amber-800">Select any 2 stations below</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Ticket Booth: Selection Inputs (Left) + Souvenir Ticket Stub (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- LEFT: The Station Selection Counter (5 cols) -->
+          <div class="lg:col-span-5 bg-[#fbf6ec] rounded-2xl border-2 border-[#d9cbb4] p-4 sm:p-5 shadow-md flex flex-col gap-4">
+            
+            <div class="border-b border-[#e5d8c3] pb-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-1.5">
+                <span class="text-sm">📍</span> Step 1: Select Origin & Destination
+              </h3>
+              <p class="text-[11px] text-[#786655] mt-0.5">
+                Choose any stations on the Chicago 'L' rail network.
+              </p>
+            </div>
+
+            <!-- Origin Station Dropdown -->
+            <div class="space-y-1.5">
+              <label for="calc-origin" class="block text-xs font-bold uppercase tracking-wide text-zinc-700 flex items-center justify-between">
+                <span>🟢 Boarding Origin</span>
+                <span id="origin-line-pill" class="text-[10px] px-2 py-0.5 rounded font-mono font-bold text-white bg-sky-600">Blue</span>
+              </label>
+              <div class="relative">
+                <select id="calc-origin" onchange="onOriginChange()" class="w-full pl-3 pr-8 py-2.5 bg-white border-2 border-[#ccbca4] hover:border-zinc-500 focus:border-red-600 focus:ring-2 focus:ring-red-200 rounded-xl text-xs sm:text-sm font-medium text-zinc-900 transition shadow-xs cursor-pointer">
+                  <!-- Populated dynamically via JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Quick Swap Button -->
+            <div class="flex items-center justify-center -my-1">
+              <button type="button" onclick="swapCalcStations()" class="group flex items-center gap-1.5 px-3.5 py-1 bg-white hover:bg-amber-100/80 border border-[#ccbca4] hover:border-amber-400 rounded-full text-xs font-bold text-[#5c4939] shadow-xs hover:shadow transition-all duration-150">
+                <span class="text-sm group-hover:rotate-180 transition-transform duration-300">⇅</span>
+                <span>Swap Origin & Destination</span>
+              </button>
+            </div>
+
+            <!-- Destination Station Dropdown -->
+            <div class="space-y-1.5">
+              <label for="calc-destination" class="block text-xs font-bold uppercase tracking-wide text-zinc-700 flex items-center justify-between">
+                <span>🔴 Alighting Destination</span>
+                <span id="dest-line-pill" class="text-[10px] px-2 py-0.5 rounded font-mono font-bold text-white bg-emerald-600">Loop</span>
+              </label>
+              <div class="relative">
+                <select id="calc-destination" onchange="onDestChange()" class="w-full pl-3 pr-8 py-2.5 bg-white border-2 border-[#ccbca4] hover:border-zinc-500 focus:border-red-600 focus:ring-2 focus:ring-red-200 rounded-xl text-xs sm:text-sm font-medium text-zinc-900 transition shadow-xs cursor-pointer">
+                  <!-- Populated dynamically via JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button type="button" id="btn-calc-fare" onclick="runTripCalculation()" class="w-full py-3 px-4 bg-gradient-to-r from-[#b63030] via-[#c60c30] to-[#991b1b] hover:from-[#a52626] hover:to-[#881414] text-white font-vintage tracking-wider text-sm sm:text-base rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 flex items-center justify-center gap-2 border border-red-950">
+              <span>🎟️</span>
+              <span>CALCULATE FARE & ROUTE</span>
+              <span>➔</span>
+            </button>
+
+            <!-- Popular Tourist Trips (Quick Presets) -->
+            <div class="pt-3 border-t border-[#e8dcc8]">
+              <span class="block text-[11px] font-bold uppercase tracking-wider text-[#6c5949] mb-2 flex items-center gap-1">
+                <span>⚡</span> Popular Sightseeing Routes:
+              </span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="setPresetTrip('ohare', 'adams-wabash')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white hover:bg-amber-100 border border-[#d8c8b0] text-zinc-800 transition">
+                  ✈️ O'Hare ➔ Millennium Park ($5)
+                </button>
+                <button type="button" onclick="setPresetTrip('midway', 'clark-lake')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white hover:bg-amber-100 border border-[#d8c8b0] text-zinc-800 transition">
+                  ✈️ Midway ➔ Downtown Loop ($2.50)
+                </button>
+                <button type="button" onclick="setPresetTrip('addison', 'sox')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white hover:bg-amber-100 border border-[#d8c8b0] text-zinc-800 transition">
+                  ⚾ Cubs (Wrigley) ➔ White Sox ($2.50)
+                </button>
+                <button type="button" onclick="setPresetTrip('clinton', 'chinatown')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white hover:bg-amber-100 border border-[#d8c8b0] text-zinc-800 transition">
+                  🍕 Fulton Mkt ➔ Chinatown ($2.50)
+                </button>
+                <button type="button" onclick="setPresetTrip('skokie', 'roosevelt')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white hover:bg-amber-100 border border-[#d8c8b0] text-zinc-800 transition">
+                  🌳 Skokie ➔ Museum Campus ($2.50)
+                </button>
+                <button type="button" onclick="setPresetTrip('clark-lake', 'clark-lake')" class="preset-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-700 transition">
+                  🔄 Same Station Test ($0)
+                </button>
+              </div>
+            </div>
+
+            <!-- Fare Policy Mini Note -->
+            <div class="p-2.5 rounded-xl bg-amber-100/60 border border-amber-300/70 text-[11px] text-amber-950 leading-tight">
+              <strong>💡 Conductor Fare Rules:</strong> Standard single-ride fare is <strong>$2.50</strong> with 2 free transfers within 2 hours. Trips departing <strong>O'Hare (ORD)</strong> on the Blue Line incur the <strong>$5.00</strong> airport rate. Travel between the same station requires no fare (<strong>$0.00</strong>).
+            </div>
+
+          </div>
+
+          <!-- RIGHT: The Vintage Souvenir Ticket Stub (7 cols) -->
+          <div class="lg:col-span-7">
+            <!-- Ticket Container with Perforated Edges & Authentic 1892 Styling -->
+            <div id="ticket-receipt" class="vintage-ticket ticket-edge-notches relative rounded-2xl p-5 sm:p-6 border-2 border-[#b89b72] shadow-xl overflow-hidden transition-all duration-300">
+              
+              <!-- Subtle Paper Texture Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-transparent to-stone-200/30 pointer-events-none"></div>
+
+              <!-- Ticket Stub Header -->
+              <div class="relative z-10 border-b-2 border-dashed border-[#cbb79a] pb-4 mb-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono font-bold tracking-widest text-[#8b3a2b] uppercase">CHICAGO ELEVATED RAILROAD</span>
+                      <span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-950 font-mono text-[9px] font-extrabold uppercase">FORM 'L'-1892</span>
+                    </div>
+                    <h4 class="text-xl sm:text-2xl font-vintage text-[#2b2520] tracking-wide mt-0.5">
+                      OFFICIAL SOUVENIR TRANSIT TICKET
+                    </h4>
+                    <p class="font-handwriting text-base sm:text-lg text-[#705642] font-bold -mt-1">
+                      Chicago Transit Authority • Rapid Transit Lines
+                    </p>
+                  </div>
+
+                  <!-- Ticket Serial & Stamp -->
+                  <div class="text-right shrink-0">
+                    <div class="font-mono text-xs font-bold text-[#b63030] tracking-wider">
+                      № <span id="ticket-serial">1892-ORD-4208</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-stone-500 uppercase mt-0.5">
+                      ISSUED: <span id="ticket-timestamp">TODAY • CHICAGO, IL</span>
+                    </div>
+                    <!-- Vintage Conductor Punch Mark Icon -->
+                    <div class="inline-block mt-1 px-2 py-0.5 rounded border border-dashed border-red-700/60 text-[10px] font-vintage text-red-900 transform -rotate-3 bg-red-50/80">
+                      ★ CONDUCTOR PUNCHED ★
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Station Origin to Destination Ribbon -->
+                <div class="mt-3 p-3 bg-[#f7efe1] rounded-xl border border-[#ded0bb] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span id="ticket-from-icon" class="text-2xl shrink-0">✈️</span>
+                    <div class="min-w-0">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Boarding Origin</span>
+                      <span id="ticket-from-name" class="font-bold text-xs sm:text-sm text-zinc-900 truncate block">O'Hare International Airport (ORD)</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-center text-[#992222] font-vintage text-base px-1 shrink-0">
+                    ➔
+                  </div>
+                  <div class="flex items-center gap-2 min-w-0 sm:text-right">
+                    <div class="min-w-0 sm:order-1 sm:text-right">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Arrival Destination</span>
+                      <span id="ticket-to-name" class="font-bold text-xs sm:text-sm text-zinc-900 truncate block">Adams / Wabash (Art Institute & Bean)</span>
+                    </div>
+                    <span id="ticket-to-icon" class="text-2xl shrink-0 sm:order-2">🏛️</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ticket Key Metrics (Fare, Travel Time, Transfers) -->
+              <div class="relative z-10 grid grid-cols-3 gap-3 mb-4">
+                
+                <!-- Fare Metric Box with Rubber Stamp Style -->
+                <div class="relative bg-gradient-to-b from-[#fff8f0] to-[#fdeddc] p-3 rounded-xl border-2 border-[#d97706]/40 text-center shadow-xs overflow-hidden">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-900 block mb-0.5">Total Fare</span>
+                  <div id="ticket-fare-display" class="text-2xl sm:text-3xl font-vintage text-[#b63030] leading-none drop-shadow-xs">
+                    $5.00
+                  </div>
+                  <span id="ticket-fare-sub" class="text-[10px] font-semibold text-amber-800 block mt-1">
+                    ✈️ O'Hare Airport Rate
+                  </span>
+                </div>
+
+                <!-- Est Travel Time Box -->
+                <div class="bg-gradient-to-b from-[#f3f9fc] to-[#e1f0f8] p-3 rounded-xl border-2 border-sky-300 text-center shadow-xs">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-sky-950 block mb-0.5">Est. Travel Time</span>
+                  <div id="ticket-time-display" class="text-2xl sm:text-3xl font-vintage text-[#0284c7] leading-none">
+                    49 mins
+                  </div>
+                  <span id="ticket-time-sub" class="text-[10px] font-semibold text-sky-800 block mt-1">
+                    Elevated / Subway
+                  </span>
+                </div>
+
+                <!-- Transfers Box -->
+                <div class="bg-gradient-to-b from-[#f5fbf7] to-[#e4f5ea] p-3 rounded-xl border-2 border-emerald-300 text-center shadow-xs">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-950 block mb-0.5">Transfers</span>
+                  <div id="ticket-transfers-display" class="text-2xl sm:text-3xl font-vintage text-[#15803d] leading-none">
+                    1 Transfer
+                  </div>
+                  <span id="ticket-transfers-sub" class="text-[10px] font-semibold text-emerald-800 block mt-1">
+                    Free in Loop
+                  </span>
+                </div>
+
+              </div>
+
+              <!-- Lines Traveled Badges -->
+              <div class="relative z-10 mb-4 p-3 bg-stone-50/90 rounded-xl border border-stone-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-stone-700 flex items-center gap-1">
+                    <span>🚇</span> Line(s) In This Journey:
+                  </span>
+                  <span id="ticket-lines-summary" class="text-[10px] font-medium text-stone-500 italic">
+                    Blue Line ➔ Green Line
+                  </span>
+                </div>
+                <div id="ticket-lines-badges" class="flex flex-wrap items-center gap-2">
+                  <!-- Dynamic line badges inserted here -->
+                </div>
+              </div>
+
+              <!-- Step-by-Step Directions / Itinerary -->
+              <div class="relative z-10 mb-4">
+                <div class="flex items-center justify-between mb-2 pb-1 border-b border-stone-200">
+                  <span class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-1">
+                    <span>📋</span> Conductor's Route Itinerary
+                  </span>
+                  <span id="ticket-summary-pill" class="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                    Fastest Route Found
+                  </span>
+                </div>
+
+                <!-- Direction Steps List -->
+                <div id="ticket-directions-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar text-xs">
+                  <!-- Dynamic steps inserted here -->
+                </div>
+              </div>
+
+              <!-- Ticket Stub Footer: Interactive Route Highlighter & Conductor Note -->
+              <div class="relative z-10 pt-3 border-t-2 border-dashed border-[#cbb79a] flex flex-wrap items-center justify-between gap-2 text-xs">
+                <button type="button" onclick="highlightTripRouteOnMap()" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:shadow transition">
+                  <span>🗺️</span>
+                  <span>Highlight Route on Map Above</span>
+                </button>
+                <div class="font-postcard-note text-stone-600 text-xs italic">
+                  "Keep this ticket for conductor inspection!"
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <footer class="mt-6 pt-4 border-t-2 border-dashed border-[#d8c8b0] flex flex-col sm:flex-row items-center justify-between text-xs text-[#736050] gap-2">
+        <div class="flex items-center gap-2">
+          <span class="font-vintage text-sm text-[#b63030]">CHICAGO "L" EXPRESS</span>
+          <span>• A Souvenir Map for Travelers & Sightseers</span>
+        </div>
+        <div class="font-handwriting text-base font-bold text-[#843c24]">
+          "The greatest elevated railway experience in North America!"
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    let audioContext = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    function playChime(freq = 523.25, type = 'sine', duration = 0.25) {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('sound-icon').textContent = audioEnabled ? '🔔' : '🔕';
+      document.getElementById('sound-text').textContent = audioEnabled ? 'Chimes On' : 'Chimes Muted';
+      if (audioEnabled) playChime(659.25);
+    }
+
+    const LINES_DATA = {
+      all: {
+        id: 'all',
+        name: "Chicago 'L' Rail System",
+        color: '#2b2520',
+        textColor: '#ffffff',
+        badge: 'All 8 Lines Active',
+        subtitle: 'The second oldest rapid transit network in the Americas',
+        description: 'Chicago\'s 102 miles of heavy rail connects 145 stations. The legendary elevated Loop was built in 1897 and remains one of the world\'s most thrilling urban transit spectacles.',
+        tip: '"Take a ride around the Loop on an elevated train (Brown, Orange, Green, or Pink). It encircles 35 city blocks of towering skyscrapers, historic theaters, and the Chicago River!"',
+        stops: [
+          { name: 'Clark / Lake', line: 'Blue, Brown, Green, Orange, Pink, Purple', desc: 'The busiest transit junction in Chicago; instant Loop access.', icon: '🏢' },
+          { name: 'Adams / Wabash', line: 'Brown, Green, Orange, Pink, Purple', desc: 'Step out directly into Millennium Park & The Art Institute.', icon: '🏛️' },
+          { name: 'O\'Hare International Airport', line: 'Blue Line', desc: 'Direct in-terminal access straight into Terminals 1, 2, and 3.', icon: '✈️' },
+          { name: 'Midway International Airport', line: 'Orange Line', desc: 'Walkway connected directly to the airline ticketing lobby.', icon: '✈️' },
+          { name: 'Addison (Wrigley Field)', line: 'Red Line', desc: 'Historic 1914 home of the Chicago Cubs baseball team.', icon: '⚾' },
+          { name: 'Roosevelt (Museum Campus)', line: 'Red, Green, Orange', desc: 'Transfer point for Field Museum, Shedd Aquarium & Adler Planetarium.', icon: '🦕' },
+          { name: 'Clinton (Fulton Market)', line: 'Green & Pink Lines', desc: 'Heart of the West Loop culinary capital & Michelin star dining.', icon: '🍕' },
+          { name: '18th Street (Pilsen)', line: 'Pink Line', desc: 'Celebrated Mexican-American street art murals & authentic taquerias.', icon: '🎨' },
+          { name: 'Cermak-Chinatown', line: 'Red Line', desc: 'Pass through the dragon gate for hot pot, dim sum & Ping Tom Park.', icon: '🥟' },
+          { name: 'Merchandise Mart', line: 'Brown & Purple Lines', desc: 'World famous 4-million-sq-ft Art Deco icon overlooking the river.', icon: '🛶' }
+        ]
+      },
+      red: {
+        id: 'red',
+        name: 'Red Line',
+        color: '#c60c30',
+        textColor: '#ffffff',
+        badge: '24/7 North-South Spine',
+        subtitle: 'Howard (North) to 95th/Dan Ryan (South) via State St Subway',
+        description: 'The workhorse of Chicago! Runs 24 hours a day, 365 days a year. Perfect for sports fans traveling to both Wrigley Field (Cubs) and Guaranteed Rate Field (White Sox), plus shopping on the Magnificent Mile.',
+        tip: '"Heading to a Cubs game at Wrigley Field? Take the Red Line to Addison! Trains run every 3-5 minutes on game days. The atmosphere on the platform after a win is electric!"',
+        stops: [
+          { name: 'Addison', desc: '⚾ Wrigley Field! Home of the Chicago Cubs in lively Wrigleyville.', icon: '⚾' },
+          { name: 'Fullerton', desc: '🦁 Lincoln Park Zoo (free entry!), DePaul University & Lincoln Park cafes.', icon: '🦁' },
+          { name: 'Chicago (State & Chicago)', desc: '🛍️ Magnificent Mile, Water Tower Place, 360 Chicago Observation Deck.', icon: '🏬' },
+          { name: 'Grand', desc: '🎡 Navy Pier connection, River North nightlife, dining & entertainment.', icon: '🎡' },
+          { name: 'Lake (The Loop)', desc: '🎭 Chicago Theatre, Millennium Park, Broadway in Chicago stage shows.', icon: '🎭' },
+          { name: 'Monroe', desc: '🎨 Art Institute of Chicago, Millennium Park Cloud Gate (The Bean).', icon: '🏛️' },
+          { name: 'Roosevelt', desc: '🦕 Gateway to Museum Campus: Field Museum, Shedd Aquarium & Adler.', icon: '🦕' },
+          { name: 'Cermak-Chinatown', desc: '🥟 Chinatown Square, dim sum, bubble tea & Ping Tom Memorial Park.', icon: '🥟' },
+          { name: 'Sox-35th', desc: '⚾ Guaranteed Rate Field! Direct stadium ramp for Chicago White Sox games.', icon: '⚾' },
+          { name: 'Howard (North Terminus)', desc: '🔄 Northern hub; transfer to Purple Line (Evanston) and Yellow Line.', icon: '🚉' }
+        ]
+      },
+      blue: {
+        id: 'blue',
+        name: 'Blue Line',
+        color: '#00a1de',
+        textColor: '#ffffff',
+        badge: 'O\'Hare Airport & Hipster Hub',
+        subtitle: 'O\'Hare Airport to Forest Park via Dearborn Subway',
+        description: 'Your express ticket from O\'Hare International Airport directly into downtown Chicago in ~45 minutes for just $5. Along the way, it threads through the trendy creative hubs of Logan Square and Wicker Park.',
+        tip: '"Skip the $60+ taxi surge fare from O\'Hare! Follow the \'Trains to City\' airport signs in baggage claim down to the underground CTA station. It is clean, fast, and drops you right under the Loop."',
+        stops: [
+          { name: 'O\'Hare Airport Station', desc: '✈️ Direct inside-airport station at Terminals 1, 2, 3. Fast ride to downtown.', icon: '✈️' },
+          { name: 'Logan Square', desc: '☕ Monument square, historic boulevards, indie coffee shops & craft beer bars.', icon: '☕' },
+          { name: 'Damen (Wicker Park)', desc: '🎸 The Six Corners boutique shopping, vintage vinyl, record stores & tacos.', icon: '🎸' },
+          { name: 'Grand (West Town)', desc: '🥪 Famous Italian subs and artisanal bakeries along Milwaukee Ave.', icon: '🥖' },
+          { name: 'Clark / Lake', desc: '🏙️ Major Loop interchange station with elevated lines & Thompson Center.', icon: '🏢' },
+          { name: 'Washington', desc: '🛍️ State Street shopping corridor & Chicago underground pedestrian pedway.', icon: '🛍️' },
+          { name: 'Jackson', desc: '📚 Financial District, Federal Plaza & Harold Washington Central Library.', icon: '🏛️' },
+          { name: 'UIC-Halsted', desc: '🏛️ Greektown saganaki restaurants and University of Illinois Chicago.', icon: '🇬🇷' }
+        ]
+      },
+      brown: {
+        id: 'brown',
+        name: 'Brown Line',
+        color: '#62361b',
+        textColor: '#ffffff',
+        badge: 'Scenic Elevated Explorer',
+        subtitle: 'Kimball to Loop Elevated (Counter-Clockwise)',
+        description: 'Voted Chicago\'s most picturesque train journey! Curves over the Chicago River with jaw-dropping views of glass skyscrapers and architecture, then glides through charming North Side residential villages.',
+        tip: '"Sit on the right side of the train facing forward when riding downtown! As the train sweeps east past Merchandise Mart across the Chicago River, you will get one of the best skyscraper views on earth."',
+        stops: [
+          { name: 'Merchandise Mart', desc: '🏙️ Directly inside the world\'s former largest commercial building; Riverwalk view.', icon: '🚤' },
+          { name: 'Clark / Lake', desc: '🔄 Enters the Loop elevated circle with sweeping aerial track views.', icon: '🚊' },
+          { name: 'Washington / Wells', desc: '🏢 Heart of the Financial District and City Hall architecture.', icon: '🏛️' },
+          { name: 'Adams / Wabash', desc: '🖼️ The Art Institute of Chicago, Grant Park and Symphony Center.', icon: '🎨' },
+          { name: 'Sedgwick (Old Town)', desc: '🎭 The Second City comedy theatre, historic Victorian homes & Wells St cafes.', icon: '🎭' },
+          { name: 'Southport', desc: '🛍️ Southport Corridor: independent fashion boutiques, bakeries & Music Box Theatre.', icon: '🎬' },
+          { name: 'Western', desc: '🥨 Lincoln Square: German beer gardens, pastry shops, and cobblestone plaza.', icon: '🥨' }
+        ]
+      },
+      green: {
+        id: 'green',
+        name: 'Green Line',
+        color: '#009b3a',
+        textColor: '#ffffff',
+        badge: 'Architecture & Foodies',
+        subtitle: 'Harlem/Lake (Oak Park) through Loop to South Side',
+        description: 'The historic original line dating back to the 1893 World\'s Columbian Exposition. Connects Frank Lloyd Wright\'s architectural wonderland in Oak Park to West Loop dining and historic Bronzeville.',
+        tip: '"Head west to Harlem/Lake to tour Frank Lloyd Wright\'s Home and Studio and Unity Temple. On your way back, hop off at Clinton for Chicago\'s top foodie dinner in Fulton Market!"',
+        stops: [
+          { name: 'Harlem / Lake (Oak Park)', desc: '🏡 Frank Lloyd Wright Home & Studio, Unity Temple UNESCO World Heritage.', icon: '🏡' },
+          { name: 'Conservatory / Central Park', desc: '🌺 Garfield Park Conservatory: breathtaking tropical palm greenhouse (free!).', icon: '🌴' },
+          { name: 'Clinton', desc: '🥩 West Loop / Fulton Market: world-famous Restaurant Row (Girl & the Goat, Au Cheval).', icon: '🍔' },
+          { name: 'Clark / Lake & State / Lake', desc: '🌆 Heart of downtown Chicago theatre district and Millennium Park.', icon: '🎭' },
+          { name: 'Roosevelt', desc: '🦕 Gateway to the Field Museum and Lakefront Trail.', icon: '🦕' },
+          { name: '35th-Bronzeville-IIT', desc: '🏛️ Historic Black Metropolis, Bronzeville Walk of Fame & Mies van der Rohe architecture.', icon: '🎷' },
+          { name: 'Cottage Grove & 63rd', desc: '🌳 Jackson Park & site of the Obama Presidential Center.', icon: '🏛️' }
+        ]
+      },
+      orange: {
+        id: 'orange',
+        name: 'Orange Line',
+        color: '#f9461c',
+        textColor: '#ffffff',
+        badge: 'Midway Airport Express',
+        subtitle: 'Midway International Airport to Loop Elevated (Clockwise)',
+        description: 'Your express link to Chicago Midway Airport (MDW). Runs on elevated tracks with a speedy 22-minute ride from the airport straight into the downtown skyline.',
+        tip: '"Midway Airport passengers: The Orange Line is fast and reliable. Avoid highway traffic on I-55 completely! The elevated views of the skyline rising up as you approach Roosevelt are stunning."',
+        stops: [
+          { name: 'Midway Airport Terminal', desc: '✈️ Direct covered walkway from baggage claim into the train station.', icon: '✈️' },
+          { name: 'Halsted (Bridgeport)', desc: '🎨 Bridgeport Art Center, working-class Chicago history & community pubs.', icon: '🎨' },
+          { name: 'Roosevelt', desc: '🦕 Rapid transfer to Red and Green Lines for Museum Campus.', icon: '🦕' },
+          { name: 'Harold Washington Library', desc: '📚 Gigantic postmodern library with stunning glass winter garden top floor.', icon: '🏛️' },
+          { name: 'Quincy', desc: '🕰️ Beautifully restored 1897 vintage station with authentic gaslight-style lamps.', icon: '🕰️' },
+          { name: 'Washington / Wells', desc: '🏢 Close to the iconic Willis Tower Skydeck "The Ledge".', icon: '🏙️' }
+        ]
+      },
+      purple: {
+        id: 'purple',
+        name: 'Purple Line',
+        color: '#522398',
+        textColor: '#ffffff',
+        badge: 'Evanston & Loop Express',
+        subtitle: 'Linden (Wilmette) to Howard shuttle + Weekday Loop Express',
+        description: 'Serves the scenic suburban lakefront of Evanston and Northwestern University. On weekday rush hours, Purple Line Express trains rocket nonstop from Belmont straight into the downtown Loop.',
+        tip: '"Ride north to the Linden terminus in Wilmette to visit the breathtaking Baha\'i House of Worship with its lace-like dome and tranquil lotus gardens on Lake Michigan!"',
+        stops: [
+          { name: 'Linden (Wilmette)', desc: '🕌 Baha\'i House of Worship: one of only seven continental temples in the world.', icon: '🕌' },
+          { name: 'Davis (Evanston)', desc: '🎓 Northwestern University, downtown Evanston dining & lakefront beaches.', icon: '🎓' },
+          { name: 'Howard', desc: '🔄 North terminal cross-platform transfer to Red Line.', icon: '🚉' },
+          { name: 'Belmont & Fullerton', desc: '⚡ High speed transfer hubs to Red and Brown lines.', icon: '⚡' },
+          { name: 'Merchandise Mart & The Loop', desc: '🏙️ Express service straight to downtown business and culture.', icon: '🏢' }
+        ]
+      },
+      pink: {
+        id: 'pink',
+        name: 'Pink Line',
+        color: '#e27ea6',
+        textColor: '#ffffff',
+        badge: 'Pilsen Murals & Cultural Beat',
+        subtitle: '54th/Cermak through Pilsen to Loop Elevated',
+        description: 'Chicago\'s newest named line (christened in 2006 by local students). Takes you right into the heart of Pilsen, one of America\'s coolest neighborhoods renowned for vibrant street murals, art galleries, and authentic Mexican cuisine.',
+        tip: '"Get off at 18th Street! The station stairs and platforms themselves are covered in hand-painted community murals. Walk 5 minutes to the National Museum of Mexican Art (always free admission)!"',
+        stops: [
+          { name: '18th Street', desc: '🎨 Pilsen cultural hub! Colorful murals, bakeries (panaderias) & vintage shops.', icon: '🎨' },
+          { name: 'Polk', desc: '🏥 Illinois Medical District & adjacent historic Little Italy dining on Taylor St.', icon: '🍝' },
+          { name: 'Clinton', desc: '🍕 Fulton Market culinary district and Randolph Street Restaurant Row.', icon: '🍕' },
+          { name: 'The Loop Elevated Circuit', desc: '🌆 Completes a full circuit around the Loop before heading back to Pilsen.', icon: '🚊' },
+          { name: '54th / Cermak', desc: '🏘️ Western terminus at the Cicero-Chicago border.', icon: '🚉' }
+        ]
+      },
+      yellow: {
+        id: 'yellow',
+        name: 'Yellow Line',
+        color: '#f4c300',
+        textColor: '#222222',
+        badge: 'The Skokie Swift',
+        subtitle: 'Howard to Dempster-Skokie Nonstop Express',
+        description: 'Originally built as a high-speed interurban demonstration line for the 1964 Chicago area rapid transit project. It flies nonstop between Howard terminal and Skokie in under 7 minutes!',
+        tip: '"Take the Yellow Line to Dempster-Skokie for a quick bus connection to the renowned Westfield Old Orchard outdoor luxury shopping mall and Skokie Northshore Sculpture Park!"',
+        stops: [
+          { name: 'Howard Station', desc: '🔄 Major transfer point to Red Line (into Chicago) and Purple Line (Evanston).', icon: '🚉' },
+          { name: 'Oakton-Skokie', desc: '🛍️ Downtown Skokie cultural center, craft microbreweries & local cafes.', icon: '🍻' },
+          { name: 'Dempster-Skokie', desc: '🌳 Gateway to Skokie Northshore Sculpture Park & Old Orchard outdoor mall.', icon: '🌳' }
+        ]
+      },
+      theloop: {
+        id: 'theloop',
+        name: 'The Historic Loop',
+        color: '#4f46e5',
+        textColor: '#ffffff',
+        badge: 'Elevated Architectural Marvel',
+        subtitle: 'The rectangular elevated track ring above Lake, Wabash, Van Buren & Wells',
+        description: 'The defining icon that gives downtown Chicago its name! Completed in 1897, the elevated rail tracks hover 20 feet above street level, looping around 35 city blocks while five lines share its tracks.',
+        tip: '"Ride any train around the Loop for an elevated amusement ride through the heart of the city! You will pass right beside 2nd-floor office windows and historic theatre marquees."',
+        stops: [
+          { name: 'Clark / Lake', desc: '🚊 Massive interchange: 6 lines connect here. Step out to the Chicago Riverwalk.', icon: '🏙️' },
+          { name: 'State / Lake', desc: '🎭 Iconic view directly above the historic Chicago Theatre glowing red marquee.', icon: '🎭' },
+          { name: 'Washington / Wabash', desc: '💎 Award-winning modern glass canopy station overlooking Jewelers\' Row.', icon: '💎' },
+          { name: 'Adams / Wabash', desc: '🏛️ Art Institute of Chicago, Millennium Park, Cloud Gate "The Bean".', icon: '🖼️' },
+          { name: 'Harold Washington Library', desc: '📚 Van Buren southern branch; South Loop historic printers row.', icon: '📚' },
+          { name: 'Quincy', desc: '🕰️ Beautifully preserved 1897 wooden station house with vintage ads & trim.', icon: '🕰️' },
+          { name: 'Washington / Wells', desc: '🏢 Financial District, Willis Tower & Board of Trade.', icon: '🏛️' }
+        ]
+      }
+    };
+
+    const STATIONS_INFO = {
+      ohare: { name: "O'Hare International Airport", line: "Blue Line", sight: "✈️ Terminals 1, 2, 3 connection straight into baggage claim. Follow 'Trains to City' signs down the concourse.", tip: "$5 fare to downtown Chicago in 45 min." },
+      midway: { name: "Midway International Airport", line: "Orange Line", sight: "✈️ Walkway connected right into Midway Airport's terminal. 22-minute elevated ride to downtown.", tip: "Standard $2.50 fare!" },
+      addison: { name: "Addison (Wrigley Field)", line: "Red Line", sight: "⚾ Historic home of the Chicago Cubs! Surrounded by Wrigleyville pubs, rooftop bleachers & Clark Street fun.", tip: "Exit onto Addison St and you're 50 steps from the iconic marquee." },
+      "clark-lake": { name: "Clark / Lake Loop Superstation", line: "Blue, Brown, Green, Orange, Pink, Purple", sight: "🏢 The central nerve center of Chicago transit. Directly connects underground subway and elevated trains.", tip: "Free transfers between all lines!" },
+      "adams-wabash": { name: "Adams / Wabash", line: "Brown, Green, Orange, Pink, Purple", sight: "🏛️ Walk 1 block east to The Art Institute of Chicago & Millennium Park (Cloud Gate / The Bean).", tip: "Great photo spot of elevated train curves." },
+      roosevelt: { name: "Roosevelt Station", line: "Red, Green, Orange Lines", sight: "🦕 Transfer hub for Museum Campus: Field Museum, Shedd Aquarium & Adler Planetarium.", tip: "Catch CTA bus #146 directly from here to museum doors." },
+      chinatown: { name: "Cermak-Chinatown", line: "Red Line", sight: "🥟 Chinatown Gate, Chinatown Square, dim sum, and Ping Tom Memorial Park with water taxi dock.", tip: "Take a Chicago Water Taxi from Ping Tom Park to Michigan Ave in summer!" },
+      sox: { name: "Sox-35th", line: "Red Line", sight: "⚾ Guaranteed Rate Field, home of the Chicago White Sox baseball club.", tip: "Direct pedestrian bridge over Dan Ryan expressway into stadium gates." },
+      pilsen: { name: "18th Street (Pilsen)", line: "Pink Line", sight: "🎨 Famous for hand-painted station platform murals, authentic street tacos, and National Museum of Mexican Art.", tip: "Walk down 18th Street for neighborhood panaderias (bakeries)." },
+      clinton: { name: "Clinton (Fulton Market)", line: "Green & Pink Lines", sight: "🥩 Fulton Market District / Restaurant Row! Chicago's hottest dining destination.", tip: "Dinner reservations recommended on Randolph Street." },
+      oakpark: { name: "Harlem / Lake (Oak Park)", line: "Green Line", sight: "🏡 Frank Lloyd Wright Home & Studio and Unity Temple (UNESCO World Heritage Site).", tip: "Walking tour maps available at the visitor center." },
+      fullerton: { name: "Fullerton", line: "Red, Brown, Purple Lines", sight: "🦁 DePaul University and short walk to Lincoln Park Zoo (always free admission!) and Conservatory.", tip: "Express cross-platform transfers between Red & Brown lines." },
+      "chicago-red": { name: "Chicago (State & Chicago)", line: "Red Line", sight: "🛍️ Magnificent Mile shopping, Water Tower Place, Loyola University & 360 Chicago Observation Deck.", tip: "Walk 3 blocks east to Michigan Avenue." },
+      grand: { name: "Grand", line: "Red Line", sight: "🎡 Nearest Red Line stop to Navy Pier, Chicago Riverwalk and River North nightlife.", tip: "Hop CTA Bus #29 or #65 straight to the Pier." },
+      mart: { name: "Merchandise Mart", line: "Brown & Purple Lines", sight: "🛶 Historic 4-million-sq-ft Art Deco landmark. Riverwalk promenade & 'Art on theMART' evening projections.", tip: "Station is elevated right above the Chicago River." },
+      library: { name: "Harold Washington Library", line: "Brown, Orange, Pink, Purple Lines", sight: "📚 Chicago's central library with massive rooftop glass winter garden and South Loop historic printer's lofts.", tip: "Free public access to the 9th floor Winter Garden." },
+      linden: { name: "Linden (Wilmette)", line: "Purple Line", sight: "🕌 Baha'i House of Worship: ornate 9-sided domed temple set in exquisite gardens overlooking Lake Michigan.", tip: "Free visitor center open daily." },
+      howard: { name: "Howard Hub", line: "Red, Purple, Yellow Lines", sight: "🚉 Northern terminal where Red, Purple and Yellow lines meet for North Shore transit.", tip: "Cross-platform transfer to Evanston trains." },
+      skokie: { name: "Dempster-Skokie", line: "Yellow Line (Skokie Swift)", sight: "🌳 Skokie Northshore Sculpture Park and express connection to Old Orchard outdoor shopping mall.", tip: "The Yellow Line runs nonstop to Howard in under 7 minutes." },
+      quincy: { name: "Quincy", line: "Brown, Orange, Pink, Purple Lines", sight: "🕰️ Historically preserved 1897 wooden station with pressed tin ceilings and vintage advertising plates.", tip: "Close to Willis Tower Skydeck 'The Ledge'." },
+      "state-lake": { name: "State / Lake", line: "Brown, Green, Orange, Pink, Purple, Red Lines", sight: "🎭 Historic Chicago Theatre glowing marquee view & Loop shopping.", tip: "Direct subway connection to Red Line Lake station." },
+      "logan": { name: "Logan Square", line: "Blue Line", sight: "☕ Historic boulevards, monument circle, indie coffee roasters & trendy dining.", tip: "Historic Logan Square neighborhood hub." },
+      "damen": { name: "Damen (Wicker Park)", line: "Blue Line", sight: "🎸 The Six Corners boutique shopping, vintage vinyl, records & street art.", tip: "Heart of Wicker Park's creative neighborhood." }
+    };
+
+    let currentActiveLine = 'all';
+
+    function selectLine(lineId) {
+      currentActiveLine = lineId;
+      playChime(getLineFreq(lineId), 'triangle', 0.2);
+
+      document.querySelectorAll('.line-btn').forEach(btn => {
+        btn.classList.remove('active-state', 'ring-4', 'ring-offset-2', 'ring-amber-400');
+        if (btn.id === `btn-${lineId}`) {
+          btn.classList.add('active-state', 'ring-4', 'ring-offset-2', 'ring-amber-400');
+        }
+      });
+
+      const allLines = document.querySelectorAll('.metro-line');
+      if (lineId === 'all') {
+        allLines.forEach(l => {
+          l.classList.remove('dimmed', 'highlighted');
+        });
+      } else if (lineId === 'theloop') {
+        allLines.forEach(l => {
+          const lData = l.getAttribute('data-line');
+          if (['brown', 'orange', 'green', 'pink', 'purple'].includes(lData)) {
+            l.classList.remove('dimmed');
+            l.classList.add('highlighted');
+          } else {
+            l.classList.add('dimmed');
+            l.classList.remove('highlighted');
+          }
+        });
+      } else {
+        allLines.forEach(l => {
+          const lData = l.getAttribute('data-line');
+          if (lData === lineId) {
+            l.classList.remove('dimmed');
+            l.classList.add('highlighted');
+          } else {
+            l.classList.add('dimmed');
+            l.classList.remove('highlighted');
+          }
+        });
+      }
+
+      updateStationNodesForLine(lineId);
+      updateDetailPanel(lineId);
+    }
+
+    function updateStationNodesForLine(lineId) {
+      const nodes = document.querySelectorAll('.station-node');
+      nodes.forEach(node => {
+        node.classList.remove('active-station', 'dimmed');
+        const stopKey = node.getAttribute('data-stop');
+        const stopInfo = STATIONS_INFO[stopKey];
+        if (!stopInfo) return;
+
+        if (lineId === 'all') {
+          // Normal state
+        } else if (lineId === 'theloop') {
+          if (['clark-lake', 'state-lake', 'adams-wabash', 'library', 'quincy', 'mart'].includes(stopKey)) {
+            node.classList.add('active-station');
+          } else {
+            node.classList.add('dimmed');
+          }
+        } else {
+          if (stopInfo.line.toLowerCase().includes(lineId.toLowerCase())) {
+            node.classList.add('active-station');
+          } else {
+            node.classList.add('dimmed');
+          }
+        }
+      });
+    }
+
+    function updateDetailPanel(lineId) {
+      const data = LINES_DATA[lineId] || LINES_DATA.all;
+      
+      const badge = document.getElementById('card-badge');
+      const title = document.getElementById('card-title');
+      const subtitle = document.getElementById('card-subtitle');
+      const desc = document.getElementById('card-description');
+      const pill = document.getElementById('line-color-pill');
+      const tip = document.getElementById('local-tip');
+      const stopsCount = document.getElementById('stops-count');
+      const stopsList = document.getElementById('stops-list');
+
+      badge.textContent = data.badge;
+      badge.style.backgroundColor = data.color === '#f4c300' ? '#b48a00' : data.color;
+      
+      title.textContent = data.name;
+      subtitle.textContent = data.subtitle;
+      desc.textContent = data.description;
+      pill.style.backgroundColor = data.color;
+      tip.textContent = data.tip;
+
+      stopsCount.textContent = `${data.stops.length} Top Stops`;
+
+      stopsList.innerHTML = '';
+      data.stops.forEach((stop) => {
+        const item = document.createElement('div');
+        item.className = 'group p-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-amber-50/60 hover:border-amber-300 transition-all cursor-pointer flex items-start gap-2.5 shadow-xs';
+        item.onclick = () => focusStopFromList(stop.name);
+        
+        item.innerHTML = `
+          <div class="w-7 h-7 rounded-lg bg-zinc-100 group-hover:bg-amber-100 flex items-center justify-center text-sm shrink-0 border border-zinc-200 transition">
+            ${stop.icon || '📍'}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-zinc-900 group-hover:text-amber-950">${stop.name}</span>
+              ${stop.line ? `<span class="text-[9px] font-semibold text-zinc-500 uppercase tracking-tighter truncate max-w-[120px]">${stop.line}</span>` : ''}
+            </div>
+            <p class="text-[11px] text-zinc-600 group-hover:text-zinc-800 leading-tight mt-0.5">${stop.desc}</p>
+          </div>
+        `;
+        stopsList.appendChild(item);
+      });
+    }
+
+    function showStationInfo(stopKey) {
+      const info = STATIONS_INFO[stopKey];
+      if (!info) return;
+
+      playChime(600, 'sine', 0.2);
+
+      document.querySelectorAll('.station-node').forEach(n => {
+        if (n.getAttribute('data-stop') === stopKey) {
+          n.classList.add('active-station');
+          n.setAttribute('r', '9');
+        }
+      });
+
+      const desc = document.getElementById('card-description');
+      const badge = document.getElementById('card-badge');
+      const title = document.getElementById('card-title');
+      const subtitle = document.getElementById('card-subtitle');
+
+      badge.textContent = `Station: ${info.line}`;
+      title.textContent = info.name;
+      subtitle.textContent = `Tourist Destination Spotlight`;
+      desc.innerHTML = `
+        <strong>Sightseeing:</strong> ${info.sight}<br>
+        <span class="inline-block mt-1 text-amber-800 font-semibold">💡 Local Tip: ${info.tip}</span>
+      `;
+    }
+
+    function focusStopFromList(stopName) {
+      playChime(700, 'sine', 0.15);
+      const matchedKey = Object.keys(STATIONS_INFO).find(k => {
+        return stopName.toLowerCase().includes(k) || STATIONS_INFO[k].name.toLowerCase().includes(stopName.toLowerCase());
+      });
+      if (matchedKey) {
+        showStationInfo(matchedKey);
+      }
+    }
+
+    function filterLandmarks(category) {
+      playChime(440, 'triangle', 0.15);
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-zinc-800', 'text-white');
+        btn.classList.add('bg-white/80', 'text-zinc-700');
+      });
+      const activeBtn = document.getElementById(`filter-${category}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-white/80', 'text-zinc-700');
+        activeBtn.classList.add('bg-zinc-800', 'text-white');
+      }
+
+      const pins = document.querySelectorAll('.landmark-pin');
+      pins.forEach(pin => {
+        const pinCat = pin.getAttribute('data-cat');
+        if (category === 'all' || pinCat === category) {
+          pin.style.display = '';
+          pin.style.opacity = '1';
+        } else {
+          pin.style.opacity = '0.15';
+        }
+      });
+    }
+
+    function resetMapView() {
+      selectLine('all');
+      filterLandmarks('all');
+    }
+
+    function getLineFreq(lineId) {
+      const freqs = {
+        all: 523.25,
+        red: 440.00,
+        blue: 493.88,
+        brown: 392.00,
+        green: 587.33,
+        orange: 659.25,
+        purple: 698.46,
+        pink: 783.99,
+        yellow: 880.00,
+        theloop: 523.25
+      };
+      return freqs[lineId] || 523.25;
+    }
+
+    // ============================================================================
+    // CHICAGO 'L' TRANSIT CALCULATION ENGINE (BY @calc)
+    // ============================================================================
+
+    const TRANSIT_STATIONS = {
+      "ohare": { name: "O'Hare International Airport (ORD)", lines: ["Blue"], terminal: true, icon: "✈️" },
+      "logan": { name: "Logan Square", lines: ["Blue"], icon: "☕" },
+      "damen": { name: "Damen (Wicker Park)", lines: ["Blue"], icon: "🎸" },
+      "clark-lake": { name: "Clark / Lake (Downtown Loop)", lines: ["Blue", "Brown", "Green", "Orange", "Pink", "Purple"], icon: "🏢" },
+      "state-lake": { name: "State / Lake (Loop / Theatre)", lines: ["Brown", "Green", "Orange", "Pink", "Purple", "Red"], icon: "🎭" },
+      "adams-wabash": { name: "Adams / Wabash (Art Institute & Bean)", lines: ["Brown", "Green", "Orange", "Pink", "Purple"], icon: "🏛️" },
+      "library": { name: "Harold Washington Library", lines: ["Brown", "Orange", "Pink", "Purple"], icon: "📚" },
+      "quincy": { name: "Quincy (Willis Tower Skydeck)", lines: ["Brown", "Orange", "Pink", "Purple"], icon: "🕰️" },
+      "mart": { name: "Merchandise Mart (Riverwalk)", lines: ["Brown", "Purple"], icon: "🛶" },
+      "roosevelt": { name: "Roosevelt (Museum Campus)", lines: ["Red", "Green", "Orange"], icon: "🦕" },
+      "chinatown": { name: "Cermak-Chinatown", lines: ["Red"], icon: "🥟" },
+      "sox": { name: "Sox-35th (Guaranteed Rate Field)", lines: ["Red"], icon: "⚾" },
+      "grand": { name: "Grand (Navy Pier Connection)", lines: ["Red"], icon: "🎡" },
+      "chicago-red": { name: "Chicago (Magnificent Mile)", lines: ["Red"], icon: "🏬" },
+      "fullerton": { name: "Fullerton (Lincoln Park Zoo)", lines: ["Red", "Brown", "Purple"], icon: "🦁" },
+      "addison": { name: "Addison (Wrigley Field)", lines: ["Red"], icon: "⚾" },
+      "howard": { name: "Howard Hub (North Shore)", lines: ["Red", "Purple", "Yellow"], icon: "🚉" },
+      "midway": { name: "Midway International Airport (MDW)", lines: ["Orange"], terminal: true, icon: "✈️" },
+      "pilsen": { name: "18th Street (Pilsen Murals)", lines: ["Pink"], icon: "🎨" },
+      "clinton": { name: "Clinton (Fulton Market / West Loop)", lines: ["Green", "Pink"], icon: "🍕" },
+      "oakpark": { name: "Harlem / Lake (Oak Park FLW)", lines: ["Green"], icon: "🏡" },
+      "skokie": { name: "Dempster-Skokie (Yellow Line)", lines: ["Yellow"], icon: "🌳" },
+      "linden": { name: "Linden (Wilmette / Baha'i)", lines: ["Purple"], icon: "🕌" }
+    };
+
+    const TRANSIT_LINE_COLORS = {
+      "Red": "#c60c30",
+      "Blue": "#00a1de",
+      "Brown": "#62361b",
+      "Green": "#009b3a",
+      "Orange": "#f9461c",
+      "Purple": "#522398",
+      "Pink": "#e27ea6",
+      "Yellow": "#f4c300"
+    };
+
+    const TRANSIT_SEGMENTS = [
+      // Blue Line (O'Hare branch to Loop)
+      { line: "Blue", u: "ohare", v: "logan", mins: 28 },
+      { line: "Blue", u: "logan", v: "damen", mins: 5 },
+      { line: "Blue", u: "damen", v: "clark-lake", mins: 12 },
+
+      // Red Line (Howard to Sox-35th via State Subway)
+      { line: "Red", u: "howard", v: "addison", mins: 14 },
+      { line: "Red", u: "addison", v: "fullerton", mins: 5 },
+      { line: "Red", u: "fullerton", v: "chicago-red", mins: 6 },
+      { line: "Red", u: "chicago-red", v: "grand", mins: 2 },
+      { line: "Red", u: "grand", v: "state-lake", mins: 2 },
+      { line: "Red", u: "state-lake", v: "roosevelt", mins: 4 },
+      { line: "Red", u: "roosevelt", v: "chinatown", mins: 3 },
+      { line: "Red", u: "chinatown", v: "sox", mins: 4 },
+
+      // Orange Line (Midway to Loop)
+      { line: "Orange", u: "midway", v: "roosevelt", mins: 20 },
+      { line: "Orange", u: "roosevelt", v: "library", mins: 3 },
+      { line: "Orange", u: "library", v: "quincy", mins: 2 },
+      { line: "Orange", u: "quincy", v: "clark-lake", mins: 3 },
+      { line: "Orange", u: "clark-lake", v: "state-lake", mins: 2 },
+      { line: "Orange", u: "state-lake", v: "adams-wabash", mins: 2 },
+      { line: "Orange", u: "adams-wabash", v: "library", mins: 2 },
+
+      // Green Line (Oak Park through Loop to South)
+      { line: "Green", u: "oakpark", v: "clinton", mins: 20 },
+      { line: "Green", u: "clinton", v: "clark-lake", mins: 3 },
+      { line: "Green", u: "clark-lake", v: "state-lake", mins: 2 },
+      { line: "Green", u: "state-lake", v: "adams-wabash", mins: 2 },
+      { line: "Green", u: "adams-wabash", v: "roosevelt", mins: 4 },
+
+      // Brown Line (Fullerton through Mart around Loop)
+      { line: "Brown", u: "fullerton", v: "mart", mins: 10 },
+      { line: "Brown", u: "mart", v: "clark-lake", mins: 2 },
+      { line: "Brown", u: "clark-lake", v: "state-lake", mins: 2 },
+      { line: "Brown", u: "state-lake", v: "adams-wabash", mins: 2 },
+      { line: "Brown", u: "adams-wabash", v: "library", mins: 2 },
+      { line: "Brown", u: "library", v: "quincy", mins: 2 },
+      { line: "Brown", u: "quincy", v: "mart", mins: 4 },
+
+      // Pink Line (Pilsen to Loop)
+      { line: "Pink", u: "pilsen", v: "clinton", mins: 9 },
+      { line: "Pink", u: "clinton", v: "clark-lake", mins: 3 },
+      { line: "Pink", u: "clark-lake", v: "state-lake", mins: 2 },
+      { line: "Pink", u: "state-lake", v: "adams-wabash", mins: 2 },
+      { line: "Pink", u: "adams-wabash", v: "library", mins: 2 },
+      { line: "Pink", u: "library", v: "quincy", mins: 2 },
+
+      // Purple Line (Linden to Howard to Fullerton to Mart to Loop)
+      { line: "Purple", u: "linden", v: "howard", mins: 12 },
+      { line: "Purple", u: "howard", v: "fullerton", mins: 15 },
+      { line: "Purple", u: "fullerton", v: "mart", mins: 10 },
+      { line: "Purple", u: "mart", v: "clark-lake", mins: 2 },
+      { line: "Purple", u: "clark-lake", v: "state-lake", mins: 2 },
+      { line: "Purple", u: "state-lake", v: "adams-wabash", mins: 2 },
+      { line: "Purple", u: "adams-wabash", v: "library", mins: 2 },
+      { line: "Purple", u: "library", v: "quincy", mins: 2 },
+
+      // Yellow Line (Skokie Swift Nonstop to Howard)
+      { line: "Yellow", u: "skokie", v: "howard", mins: 6 }
+    ];
+
+    function calculateTrip(fromStationKey, toStationKey) {
+      if (!TRANSIT_STATIONS[fromStationKey] || !TRANSIT_STATIONS[toStationKey]) {
+        return {
+          error: "Please select valid origin and destination stations."
+        };
+      }
+
+      const fromStation = TRANSIT_STATIONS[fromStationKey];
+      const toStation = TRANSIT_STATIONS[toStationKey];
+
+      // Edge case: Same station
+      if (fromStationKey === toStationKey) {
+        return {
+          from: { key: fromStationKey, name: fromStation.name, icon: fromStation.icon },
+          to: { key: toStationKey, name: toStation.name, icon: toStation.icon },
+          minutes: 0,
+          timeText: "0 min",
+          fare: 0.00,
+          fareText: "$0.00",
+          transfers: 0,
+          lines: [],
+          legs: [],
+          directions: [`You are already at ${fromStation.name}! No travel required.`],
+          summary: "Same station departure and arrival."
+        };
+      }
+
+      // Fare calculation: $5.00 if departing O'Hare 'ohare', $2.50 standard
+      const fare = fromStationKey === "ohare" ? 5.00 : 2.50;
+      const fareText = `$${fare.toFixed(2)}`;
+
+      // Graph build
+      const adj = {};
+      TRANSIT_SEGMENTS.forEach(s => {
+        if (!adj[s.u]) adj[s.u] = [];
+        if (!adj[s.v]) adj[s.v] = [];
+        adj[s.u].push({ to: s.v, line: s.line, mins: s.mins });
+        adj[s.v].push({ to: s.u, line: s.line, mins: s.mins });
+      });
+
+      // Dijkstra search with transfer minimization
+      const dist = {};
+      const queue = [];
+
+      fromStation.lines.forEach(initLine => {
+        const key = `${fromStationKey}|${initLine}`;
+        dist[key] = 0;
+        queue.push({
+          station: fromStationKey,
+          line: initLine,
+          minutes: 0,
+          transfers: 0,
+          cost: 0,
+          legs: []
+        });
+      });
+
+      let bestDest = null;
+      const TRANSFER_PENALTY_MINS = 4; // Transfer walk & wait time
+
+      while (queue.length > 0) {
+        queue.sort((a, b) => a.cost - b.cost);
+        const curr = queue.shift();
+
+        const currKey = `${curr.station}|${curr.line}`;
+        if (curr.cost > dist[currKey]) continue;
+
+        if (curr.station === toStationKey) {
+          if (!bestDest || curr.cost < bestDest.cost) {
+            bestDest = curr;
+            break;
+          }
+        }
+
+        const edges = adj[curr.station] || [];
+        for (let i = 0; i < edges.length; i++) {
+          const edge = edges[i];
+          const isTransfer = edge.line !== curr.line;
+          const transferDelay = isTransfer ? TRANSFER_PENALTY_MINS : 0;
+          const nextMinutes = curr.minutes + edge.mins + transferDelay;
+          const nextTransfers = curr.transfers + (isTransfer ? 1 : 0);
+          const nextCost = nextMinutes + nextTransfers * 14; // weight to favor direct lines
+
+          const nextKey = `${edge.to}|${edge.line}`;
+          if (dist[nextKey] === undefined || nextCost < dist[nextKey]) {
+            dist[nextKey] = nextCost;
+            queue.push({
+              station: edge.to,
+              line: edge.line,
+              minutes: nextMinutes,
+              transfers: nextTransfers,
+              cost: nextCost,
+              legs: [...curr.legs, { from: curr.station, to: edge.to, line: edge.line, mins: edge.mins, isTransfer }]
+            });
+          }
+        }
+      }
+
+      if (!bestDest) {
+        return {
+          error: "No transit path found between the selected stations."
+        };
+      }
+
+      // Consolidate legs into continuous line rides
+      const consolidatedLegs = [];
+      let currentLeg = null;
+
+      bestDest.legs.forEach(step => {
+        if (!currentLeg || currentLeg.line !== step.line) {
+          if (currentLeg) consolidatedLegs.push(currentLeg);
+          currentLeg = {
+            line: step.line,
+            lineColor: TRANSIT_LINE_COLORS[step.line] || "#333333",
+            boardStation: step.from,
+            alightStation: step.to,
+            stopsCount: 1,
+            minutes: step.mins,
+            stationSequence: [step.from, step.to]
+          };
+        } else {
+          currentLeg.alightStation = step.to;
+          currentLeg.stopsCount += 1;
+          currentLeg.minutes += step.mins;
+          currentLeg.stationSequence.push(step.to);
+        }
+      });
+      if (currentLeg) consolidatedLegs.push(currentLeg);
+
+      // Build step-by-step human directions
+      const directions = [];
+      const linesUsed = [];
+
+      consolidatedLegs.forEach((leg, idx) => {
+        if (!linesUsed.includes(leg.line)) linesUsed.push(leg.line);
+        const boardName = TRANSIT_STATIONS[leg.boardStation]?.name || leg.boardStation;
+        const alightName = TRANSIT_STATIONS[leg.alightStation]?.name || leg.alightStation;
+
+        if (idx === 0) {
+          directions.push(`Board ${leg.line} Line at ${boardName}. Ride ${leg.stopsCount} stop${leg.stopsCount > 1 ? 's' : ''} (~${leg.minutes} min).`);
+        } else {
+          directions.push(`Transfer at ${boardName} to the ${leg.line} Line. Ride ${leg.stopsCount} stop${leg.stopsCount > 1 ? 's' : ''} (~${leg.minutes} min).`);
+        }
+
+        if (idx === consolidatedLegs.length - 1) {
+          directions.push(`Alight at ${alightName} (Destination reached!).`);
+        }
+      });
+
+      const linesSummary = linesUsed.map(l => `${l} Line`).join(" ➔ ");
+      const transferSummary = bestDest.transfers === 0 ? "Direct (0 transfers)" : `${bestDest.transfers} transfer${bestDest.transfers > 1 ? 's' : ''}`;
+      const summary = `${linesSummary} • ${transferSummary} • ~${bestDest.minutes} mins • ${fareText}`;
+
+      return {
+        from: { key: fromStationKey, name: fromStation.name, icon: fromStation.icon },
+        to: { key: toStationKey, name: toStation.name, icon: toStation.icon },
+        minutes: bestDest.minutes,
+        timeText: `${bestDest.minutes} mins`,
+        fare: fare,
+        fareText: fareText,
+        transfers: bestDest.transfers,
+        lines: linesUsed,
+        legs: consolidatedLegs,
+        directions: directions,
+        summary: summary
+      };
+    }
+
+    // ============================================================================
+    // TRIP CALCULATOR UI CONTROLLER
+    // ============================================================================
+
+    let lastCalculatedTrip = null;
+
+    const STATION_GROUPS = [
+      {
+        group: "✈️ International Airports",
+        stations: ["ohare", "midway"]
+      },
+      {
+        group: "🏢 Historic Downtown Loop",
+        stations: ["clark-lake", "state-lake", "adams-wabash", "library", "quincy", "mart"]
+      },
+      {
+        group: "⚾ North Side & Wrigley",
+        stations: ["addison", "fullerton", "chicago-red", "grand", "howard", "linden", "skokie"]
+      },
+      {
+        group: "🥟 South Side & Pilsen",
+        stations: ["roosevelt", "chinatown", "sox", "pilsen"]
+      },
+      {
+        group: "🍕 West Side & Oak Park",
+        stations: ["clinton", "oakpark", "logan", "damen"]
+      }
+    ];
+
+    function populateStationDropdowns() {
+      const originSelect = document.getElementById('calc-origin');
+      const destSelect = document.getElementById('calc-destination');
+      if (!originSelect || !destSelect) return;
+
+      originSelect.innerHTML = '';
+      destSelect.innerHTML = '';
+
+      STATION_GROUPS.forEach(g => {
+        const optGroup1 = document.createElement('optgroup');
+        optGroup1.label = g.group;
+        const optGroup2 = document.createElement('optgroup');
+        optGroup2.label = g.group;
+
+        g.stations.forEach(key => {
+          const st = TRANSIT_STATIONS[key];
+          if (!st) return;
+          const label = `${st.icon || '📍'} ${st.name} [${st.lines.join('/')}]`;
+
+          const opt1 = new Option(label, key);
+          const opt2 = new Option(label, key);
+
+          optGroup1.appendChild(opt1);
+          optGroup2.appendChild(opt2);
+        });
+
+        originSelect.appendChild(optGroup1);
+        destSelect.appendChild(optGroup2);
+      });
+
+      originSelect.value = 'ohare';
+      destSelect.value = 'adams-wabash';
+
+      onOriginChange();
+      onDestChange();
+    }
+
+    function onOriginChange() {
+      const originSelect = document.getElementById('calc-origin');
+      const pill = document.getElementById('origin-line-pill');
+      if (!originSelect || !pill) return;
+      const st = TRANSIT_STATIONS[originSelect.value];
+      if (st && st.lines.length > 0) {
+        const mainLine = st.lines[0];
+        pill.textContent = st.lines.length > 1 ? `${mainLine}+` : mainLine;
+        pill.style.backgroundColor = TRANSIT_LINE_COLORS[mainLine] || '#333333';
+        pill.style.color = mainLine === 'Yellow' ? '#222222' : '#ffffff';
+      }
+    }
+
+    function onDestChange() {
+      const destSelect = document.getElementById('calc-destination');
+      const pill = document.getElementById('dest-line-pill');
+      if (!destSelect || !pill) return;
+      const st = TRANSIT_STATIONS[destSelect.value];
+      if (st && st.lines.length > 0) {
+        const mainLine = st.lines[0];
+        pill.textContent = st.lines.length > 1 ? `${mainLine}+` : mainLine;
+        pill.style.backgroundColor = TRANSIT_LINE_COLORS[mainLine] || '#333333';
+        pill.style.color = mainLine === 'Yellow' ? '#222222' : '#ffffff';
+      }
+    }
+
+    function swapCalcStations() {
+      const originSelect = document.getElementById('calc-origin');
+      const destSelect = document.getElementById('calc-destination');
+      if (!originSelect || !destSelect) return;
+      const temp = originSelect.value;
+      originSelect.value = destSelect.value;
+      destSelect.value = temp;
+      onOriginChange();
+      onDestChange();
+      playChime(523.25, 'sine', 0.15);
+      runTripCalculation();
+    }
+
+    function setPresetTrip(fromKey, toKey) {
+      const originSelect = document.getElementById('calc-origin');
+      const destSelect = document.getElementById('calc-destination');
+      if (!originSelect || !destSelect) return;
+      originSelect.value = fromKey;
+      destSelect.value = toKey;
+      onOriginChange();
+      onDestChange();
+      playChime(659.25, 'triangle', 0.2);
+      runTripCalculation();
+    }
+
+    function runTripCalculation() {
+      const originSelect = document.getElementById('calc-origin');
+      const destSelect = document.getElementById('calc-destination');
+      if (!originSelect || !destSelect) return;
+
+      const fromKey = originSelect.value;
+      const toKey = destSelect.value;
+      const result = calculateTrip(fromKey, toKey);
+      lastCalculatedTrip = result;
+
+      if (result.error) {
+        alert(result.error);
+        return;
+      }
+
+      // Update Serial & Timestamp
+      const serialElem = document.getElementById('ticket-serial');
+      if (serialElem) {
+        const code = toKey.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase() || 'L18';
+        const rand = Math.floor(1000 + Math.random() * 9000);
+        serialElem.textContent = `1892-${code}-${rand}`;
+      }
+      const timeElem = document.getElementById('ticket-timestamp');
+      if (timeElem) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        timeElem.textContent = `${dateStr.toUpperCase()} • CHICAGO, IL`;
+      }
+
+      // Update Station Ribbon
+      const fromIcon = document.getElementById('ticket-from-icon');
+      const fromName = document.getElementById('ticket-from-name');
+      const toIcon = document.getElementById('ticket-to-icon');
+      const toName = document.getElementById('ticket-to-name');
+      if (fromIcon) fromIcon.textContent = result.from.icon || '📍';
+      if (fromName) fromName.textContent = result.from.name;
+      if (toIcon) toIcon.textContent = result.to.icon || '📍';
+      if (toName) toName.textContent = result.to.name;
+
+      // Update Fare Box
+      const fareDisplay = document.getElementById('ticket-fare-display');
+      const fareSub = document.getElementById('ticket-fare-sub');
+      if (fareDisplay) fareDisplay.textContent = result.fareText;
+      if (fareSub) {
+        if (result.fare === 5.00) {
+          fareSub.textContent = "✈️ O'Hare Airport Rate";
+          fareSub.className = "text-[10px] font-bold text-red-800 block mt-1";
+        } else if (result.fare === 0.00) {
+          fareSub.textContent = "🔄 Same Station (No Fare)";
+          fareSub.className = "text-[10px] font-bold text-emerald-800 block mt-1";
+        } else {
+          fareSub.textContent = "Standard CTA Transit Fare";
+          fareSub.className = "text-[10px] font-semibold text-amber-800 block mt-1";
+        }
+      }
+
+      // Update Travel Time Box
+      const timeDisplay = document.getElementById('ticket-time-display');
+      const timeSub = document.getElementById('ticket-time-sub');
+      if (timeDisplay) timeDisplay.textContent = result.timeText;
+      if (timeSub) {
+        timeSub.textContent = result.minutes === 0 ? "No Travel Required" : "Elevated / Subway";
+      }
+
+      // Update Transfers Box
+      const transDisplay = document.getElementById('ticket-transfers-display');
+      const transSub = document.getElementById('ticket-transfers-sub');
+      if (transDisplay) {
+        if (result.transfers === 0) {
+          transDisplay.textContent = result.minutes === 0 ? "0 Transfers" : "Direct (0)";
+        } else {
+          transDisplay.textContent = `${result.transfers} Transfer${result.transfers > 1 ? 's' : ''}`;
+        }
+      }
+      if (transSub) {
+        if (result.transfers === 0) {
+          transSub.textContent = "Single Train Ride";
+        } else {
+          transSub.textContent = "Free Transfer in Loop";
+        }
+      }
+
+      // Update Lines Badges
+      const linesSummary = document.getElementById('ticket-lines-summary');
+      const linesBadges = document.getElementById('ticket-lines-badges');
+      if (linesSummary) {
+        linesSummary.textContent = result.lines.length > 0 
+          ? result.lines.map(l => `${l} Line`).join(' ➔ ') 
+          : 'None (Same Station)';
+      }
+      if (linesBadges) {
+        linesBadges.innerHTML = '';
+        if (result.lines.length === 0) {
+          linesBadges.innerHTML = '<span class="text-xs text-stone-500 italic">No lines needed</span>';
+        } else {
+          result.lines.forEach((lineName, i) => {
+            const pill = document.createElement('span');
+            const bg = TRANSIT_LINE_COLORS[lineName] || '#333333';
+            const fg = lineName === 'Yellow' ? '#222222' : '#ffffff';
+            pill.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shadow-xs';
+            pill.style.backgroundColor = bg;
+            pill.style.color = fg;
+            pill.innerHTML = `<span>🚇</span> <span>${lineName} Line</span>`;
+            linesBadges.appendChild(pill);
+
+            if (i < result.lines.length - 1) {
+              const arrow = document.createElement('span');
+              arrow.className = 'text-stone-400 font-bold text-xs';
+              arrow.textContent = '➔';
+              linesBadges.appendChild(arrow);
+            }
+          });
+        }
+      }
+
+      // Update Route Summary Pill & Directions List
+      const summaryPill = document.getElementById('ticket-summary-pill');
+      if (summaryPill) {
+        if (result.minutes === 0) {
+          summaryPill.textContent = "Station Standstill";
+        } else if (result.transfers === 0) {
+          summaryPill.textContent = "Direct Express Route";
+        } else {
+          summaryPill.textContent = `${result.transfers} Quick Transfer${result.transfers > 1 ? 's' : ''}`;
+        }
+      }
+
+      const dirList = document.getElementById('ticket-directions-list');
+      if (dirList) {
+        dirList.innerHTML = '';
+        result.directions.forEach((step, idx) => {
+          const stepDiv = document.createElement('div');
+          stepDiv.className = 'p-2.5 rounded-lg border border-stone-200 bg-white flex items-start gap-2.5 shadow-xs';
+          
+          let badgeBg = 'bg-stone-800 text-white';
+          if (idx === 0) badgeBg = 'bg-emerald-700 text-white';
+          else if (idx === result.directions.length - 1) badgeBg = 'bg-red-700 text-white';
+          else badgeBg = 'bg-amber-600 text-white';
+
+          stepDiv.innerHTML = `
+            <span class="w-5 h-5 rounded-full ${badgeBg} font-mono font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+            <div class="flex-1 text-zinc-800 leading-snug">
+              ${step}
+            </div>
+          `;
+          dirList.appendChild(stepDiv);
+        });
+      }
+
+      playChime(587.33, 'triangle', 0.25);
+    }
+
+    function highlightTripRouteOnMap() {
+      if (!lastCalculatedTrip || !lastCalculatedTrip.lines) return;
+      playChime(659.25, 'triangle', 0.2);
+
+      const tripLines = lastCalculatedTrip.lines.map(l => l.toLowerCase());
+      const allLines = document.querySelectorAll('.metro-line');
+
+      if (tripLines.length === 0) {
+        allLines.forEach(l => l.classList.remove('dimmed', 'highlighted'));
+      } else {
+        allLines.forEach(l => {
+          const lData = l.getAttribute('data-line');
+          if (tripLines.includes(lData)) {
+            l.classList.remove('dimmed');
+            l.classList.add('highlighted');
+          } else {
+            l.classList.add('dimmed');
+            l.classList.remove('highlighted');
+          }
+        });
+      }
+
+      // Highlight origin & destination station nodes
+      const nodes = document.querySelectorAll('.station-node');
+      nodes.forEach(node => {
+        node.classList.remove('active-station', 'dimmed');
+        const stopKey = node.getAttribute('data-stop');
+        if (stopKey === lastCalculatedTrip.from.key || stopKey === lastCalculatedTrip.to.key) {
+          node.classList.add('active-station');
+        } else {
+          node.classList.add('dimmed');
+        }
+      });
+
+      // Smooth scroll to the top of the map
+      const mapElem = document.getElementById('cta-map');
+      if (mapElem) {
+        mapElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      selectLine('all');
+      populateStationDropdowns();
+      runTripCalculation();
+    });
+  </script>
+</body>
+</html>
+
