@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurniNest — Variant B: Bottom Sheet Filter Drawer & Editorial Story Cards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #b45309;
+      --accent-light: #fef3c7;
+      --bg-page: #fdfbf7; /* Warm alabaster linen */
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.08);
+      --radius-lg: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #090d16;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px;
+    }
+
+    .device-toolbar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #94a3b8;
+      font-size: 0.82rem;
+    }
+
+    .device-toolbar a {
+      color: #fef3c7;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 870px;
+      background: var(--bg-page);
+      border-radius: 44px;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.5), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 110px;
+      height: 24px;
+      background: #000000;
+      border-radius: 20px;
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    .status-bar {
+      height: 42px;
+      padding: 10px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #1e293b;
+      z-index: 99;
+      background: var(--bg-page);
+    }
+
+    /* Mobile Header */
+    .app-header {
+      background: var(--bg-page);
+      padding: 10px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-mark span { color: var(--accent); }
+
+    .header-icons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    /* Scrollable Container */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 90px;
+    }
+
+    /* Compact Filter & Sort Anchor Bar */
+    .compact-filter-bar {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      background: rgba(253, 251, 247, 0.94);
+      backdrop-filter: blur(12px);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .active-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 65%;
+    }
+    .active-pills-row::-webkit-scrollbar { display: none; }
+
+    .active-pill-tag {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1e293b;
+      padding: 4px 10px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .filter-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e293b;
+      color: #ffffff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+    }
+
+    .filter-badge-count {
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 0.65rem;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Editorial Story Cards */
+    .card-stream {
+      padding: 16px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .editorial-card {
+      background: #ffffff;
+      border: 1px solid #e8e3d9;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s ease;
+    }
+
+    .editorial-media {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: #f1f5f9;
+      overflow: hidden;
+    }
+
+    .editorial-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .craft-tag {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      color: #fef3c7;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .wish-round-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      font-size: 1rem;
+    }
+
+    .dimension-pill {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(6px);
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .editorial-content {
+      padding: 16px 18px 18px;
+    }
+
+    .ed-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .ed-category {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ed-rating {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .ed-rating span { color: #f59e0b; }
+
+    .ed-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .ed-desc {
+      font-size: 0.8rem;
+      color: #64748b;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .ed-pricing-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .price-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ed-price {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .ed-orig {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+
+    .ed-cta-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-detail {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .btn-add {
+      background: #1e293b;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 10px rgba(30, 41, 59, 0.15);
+    }
+
+    /* ══════════ BOTTOM SHEET DRAWER OVERLAY ══════════ */
+    .drawer-scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-scrim.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ffffff;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.25);
+      z-index: 550;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 85%;
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.open {
+      transform: translateY(0);
+    }
+
+    .sheet-handle-bar {
+      width: 44px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 99px;
+      margin: 12px auto 6px;
+    }
+
+    .sheet-header {
+      padding: 8px 20px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sheet-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .sheet-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .sheet-section {
+      margin-bottom: 20px;
+    }
+
+    .section-headline {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .category-grid-select {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .cat-select-btn {
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #334155;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cat-select-btn.active {
+      background: #fef3c7;
+      border-color: #b45309;
+      color: #92400e;
+    }
+
+    /* Price Slider */
+    .price-slider-wrap {
+      padding: 6px 0;
+    }
+    .price-readout {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .custom-range {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Timber Chips */
+    .timber-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .timber-pill {
+      padding: 6px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      background: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+    }
+    .timber-pill.active {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+    }
+
+    .sheet-footer {
+      padding: 12px 20px 24px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-reset {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .btn-apply {
+      flex: 2;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #1e293b;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(30, 41, 59, 0.25);
+    }
+
+    /* Toast */
+    .mini-toast {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 600;
+    }
+    .mini-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="device-toolbar">
+    <div>
+      <span style="color:#f59e0b; font-weight:700;">Variant B:</span> Bottom Sheet Drawer + Editorial Story Cards
+    </div>
+    <a href="index.html">← Compare All Variants</a>
+  </div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 5G  100% 🔋</span>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-mark">Furni<span>Nest</span></div>
+      <div class="header-icons">
+        <button class="icon-btn">🔍</button>
+        <button class="icon-btn">🛍️</button>
+      </div>
+    </header>
+
+    <!-- Scroll Content -->
+    <div class="content-scroll">
+      
+      <!-- Sticky Compact Filter Trigger Bar -->
+      <div class="compact-filter-bar">
+        <div class="active-pills-row" id="activePills">
+          <span class="active-pill-tag" id="summaryPill">✨ All Living Pieces</span>
+        </div>
+        <button class="filter-trigger-btn" onclick="openDrawer()">
+          <span>⚙️ Filter & Sort</span>
+          <span class="filter-badge-count" id="activeFilterBadge">1</span>
+        </button>
+      </div>
+
+      <!-- Editorial Card Stream -->
+      <div class="card-stream" id="cardStream">
+        <!-- Rendered by JS -->
+      </div>
+
+    </div>
+
+    <!-- ══════════ BOTTOM SHEET FILTER DRAWER ══════════ -->
+    <div class="drawer-scrim" id="drawerScrim" onclick="closeDrawer()"></div>
+    
+    <div class="bottom-sheet" id="bottomSheet">
+      <div class="sheet-handle-bar"></div>
+      
+      <div class="sheet-header">
+        <h3 class="sheet-title">Refine Atelier Pieces</h3>
+        <button onclick="closeDrawer()" style="background:none; border:none; font-size:1.1rem; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <div class="sheet-body">
+        
+        <!-- Section 1: Space / Category -->
+        <div class="sheet-section">
+          <div class="section-headline">Room & Environment</div>
+          <div class="category-grid-select">
+            <button class="cat-select-btn active" data-cat="all" onclick="selectDrawerCat('all', this)">✨ All Living</button>
+            <button class="cat-select-btn" data-cat="living-room" onclick="selectDrawerCat('living-room', this)">🛋️ Living Room</button>
+            <button class="cat-select-btn" data-cat="bedroom" onclick="selectDrawerCat('bedroom', this)">🛏️ Bedroom</button>
+            <button class="cat-select-btn" data-cat="dining-room" onclick="selectDrawerCat('dining-room', this)">🍽️ Dining Room</button>
+          </div>
+        </div>
+
+        <!-- Section 2: Maximum Price Budget -->
+        <div class="sheet-section">
+          <div class="section-headline">Maximum Investment</div>
+          <div class="price-slider-wrap">
+            <div class="price-readout">
+              <span>Up to:</span>
+              <span id="priceLabel">₹45,000</span>
+            </div>
+            <input type="range" min="10000" max="60000" step="2500" value="45000" class="custom-range" id="priceRangeInput" oninput="updatePriceReadout(this.value)">
+          </div>
+        </div>
+
+        <!-- Section 3: Solid Wood Species -->
+        <div class="sheet-section">
+          <div class="section-headline">Primary Hardwood</div>
+          <div class="timber-chips">
+            <button class="timber-pill active" onclick="toggleTimber('all', this)">Any Timber</button>
+            <button class="timber-pill" onclick="toggleTimber('walnut', this)">American Walnut</button>
+            <button class="timber-pill" onclick="toggleTimber('oak', this)">White Oak</button>
+            <button class="timber-pill" onclick="toggleTimber('teak', this)">Malabar Teak</button>
+          </div>
+        </div>
+
+        <!-- Section 4: Sort -->
+        <div class="sheet-section">
+          <div class="section-headline">Sorting</div>
+          <select id="sortSelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1; font-family:inherit; font-size:0.85rem;">
+            <option value="featured">Curated Masterpieces</option>
+            <option value="price-asc">Price: Handcrafted Essentials First</option>
+            <option value="price-desc">Price: Heirloom First</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="sheet-footer">
+        <button class="btn-reset" onclick="resetDrawer()">Clear All</button>
+        <button class="btn-apply" onclick="applyDrawer()">Apply Filters</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="mini-toast" id="toast">
+      <span id="toastMsg">Added to your shopping bag</span>
+    </div>
+
+  </div>
+
+  <script>
+    const ITEMS = [
+      {
+        id: 1,
+        name: "Atelier Swivel Accent Chair",
+        cat: "living-room",
+        catName: "Living Room",
+        price: 18999,
+        origPrice: 22499,
+        timber: "American Walnut",
+        dims: "W: 82cm • D: 78cm • H: 86cm",
+        rating: "4.9 (42)",
+        desc: "Curved barrel back with hand-finished walnut base and feather-down wrapped core.",
+        img: "https://images.unsplash.com/photo-1580481077195-c9a91345476f?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 2,
+        name: "Kyoto Floating Platform Bed",
+        cat: "bedroom",
+        catName: "Bedroom",
+        price: 34999,
+        origPrice: 39999,
+        timber: "Malabar Teak",
+        dims: "W: 190cm • L: 215cm • H: 75cm",
+        rating: "5.0 (28)",
+        desc: "Minimalist Japanese joinery with integrated cantilevered nightstands.",
+        img: "https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 3,
+        name: "Nordic Oval Solid Oak Dining Table",
+        cat: "dining-room",
+        catName: "Dining Room",
+        price: 26500,
+        origPrice: 31000,
+        timber: "White Oak",
+        dims: "L: 200cm • W: 95cm • H: 76cm",
+        rating: "4.8 (19)",
+        desc: "Softened beveled edge crafted from European white oak planks.",
+        img: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 4,
+        name: "Malabar Cane Weave Sideboard",
+        cat: "dining-room",
+        catName: "Dining Room",
+        price: 38000,
+        origPrice: 44000,
+        timber: "Malabar Teak",
+        dims: "W: 160cm • D: 45cm • H: 80cm",
+        rating: "4.9 (34)",
+        desc: "Hand-woven natural rattan cane doors with solid aged teak frame.",
+        img: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=700&q=80"
+      }
+    ];
+
+    let selectedCat = 'all';
+    let maxPrice = 45000;
+    let selectedTimber = 'all';
+    const wishlist = new Set();
+
+    function renderCards() {
+      const stream = document.getElementById('cardStream');
+      const filtered = ITEMS.filter(item => {
+        const catMatch = selectedCat === 'all' || item.cat === selectedCat;
+        const priceMatch = item.price <= maxPrice;
+        const timberMatch = selectedTimber === 'all' || item.timber.toLowerCase().includes(selectedTimber.toLowerCase());
+        return catMatch && priceMatch && timberMatch;
+      });
+
+      if (filtered.length === 0) {
+        stream.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">🛋️</div>
+            <h4 style="color:#1e293b; margin-bottom: 6px;">No pieces found</h4>
+            <p style="font-size: 0.8rem;">Adjust your filter sliders to explore more artisan pieces.</p>
+          </div>
+        `;
+        return;
+      }
+
+      stream.innerHTML = filtered.map(item => `
+        <article class="editorial-card">
+          <div class="editorial-media">
+            <img src="${item.img}" alt="${item.name}">
+            <span class="craft-tag">Solid ${item.timber}</span>
+            <button class="wish-round-btn" onclick="toggleWish(${item.id}, this)">
+              ${wishlist.has(item.id) ? '❤️' : '🤍'}
+            </button>
+            <span class="dimension-pill">📐 ${item.dims}</span>
+          </div>
+
+          <div class="editorial-content">
+            <div class="ed-meta-row">
+              <span class="ed-category">${item.catName}</span>
+              <span class="ed-rating">★ <span>${item.rating}</span></span>
+            </div>
+
+            <h3 class="ed-title">${item.name}</h3>
+            <p class="ed-desc">${item.desc}</p>
+
+            <div class="ed-pricing-cta">
+              <div class="price-block">
+                <span class="ed-price">₹${item.price.toLocaleString('en-IN')}</span>
+                ${item.origPrice ? `<span class="ed-orig">₹${item.origPrice.toLocaleString('en-IN')}</span>` : ''}
+              </div>
+
+              <div class="ed-cta-group">
+                <button class="btn-detail" onclick="showToast('Inspecting timber details...')">Specs</button>
+                <button class="btn-add" onclick="showToast('Added to bag!')">
+                  <span>+ Bag</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openDrawer() {
+      document.getElementById('drawerScrim').classList.add('open');
+      document.getElementById('bottomSheet').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerScrim').classList.remove('open');
+      document.getElementById('bottomSheet').classList.remove('open');
+    }
+
+    function selectDrawerCat(cat, btn) {
+      document.querySelectorAll('.cat-select-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedCat = cat;
+    }
+
+    function updatePriceReadout(val) {
+      maxPrice = parseInt(val, 10);
+      document.getElementById('priceLabel').innerText = '₹' + maxPrice.toLocaleString('en-IN');
+    }
+
+    function toggleTimber(t, btn) {
+      document.querySelectorAll('.timber-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedTimber = t;
+    }
+
+    function applyDrawer() {
+      closeDrawer();
+      document.getElementById('summaryPill').innerText = selectedCat === 'all' ? '✨ All Living Pieces' : `🏷️ ${selectedCat.replace('-', ' ')}`;
+      renderCards();
+      showToast('Filters applied');
+    }
+
+    function resetDrawer() {
+      selectedCat = 'all';
+      maxPrice = 60000;
+      selectedTimber = 'all';
+      document.getElementById('priceRangeInput').value = 60000;
+      updatePriceReadout(60000);
+      document.querySelectorAll('.cat-select-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('.timber-pill').forEach((b, i) => b.classList.toggle('active', i === 0));
+      applyDrawer();
+    }
+
+    function toggleWish(id, btn) {
+      if (wishlist.has(id)) {
+        wishlist.delete(id);
+        btn.innerText = '🤍';
+        showToast('Removed from wishlist');
+      } else {
+        wishlist.add(id);
+        btn.innerText = '❤️';
+        showToast('Saved to wishlist ❤️');
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
+

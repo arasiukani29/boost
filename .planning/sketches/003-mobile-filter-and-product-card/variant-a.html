@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurniNest — Variant A: Sticky Pill Carousel & Minimalist Cards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #b45309;
+      --accent-light: #fef3c7;
+      --accent-hover: #92400e;
+      --bg-page: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0f172a;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px;
+    }
+
+    /* Device Showcase Frame */
+    .device-toolbar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #94a3b8;
+      font-size: 0.82rem;
+    }
+
+    .device-toolbar a {
+      color: #fef3c7;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .device-toolbar a:hover { color: #f59e0b; }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 870px;
+      background: var(--bg-page);
+      border-radius: 44px;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.5), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Dynamic Island / Notch */
+    .phone-notch {
+      width: 110px;
+      height: 24px;
+      background: #000000;
+      border-radius: 20px;
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    /* Phone Status Bar */
+    .status-bar {
+      height: 42px;
+      padding: 10px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #1e293b;
+      z-index: 99;
+      background: var(--surface);
+    }
+
+    /* Mobile Header */
+    .app-header {
+      background: var(--surface);
+      padding: 8px 16px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.02em;
+    }
+    .brand-mark span { color: var(--accent); }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+    }
+
+    /* Scrollable Container */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Sticky Filter Complex */
+    .sticky-filter-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      padding-top: 10px;
+    }
+
+    /* Search Input Pill */
+    .search-row {
+      padding: 0 16px 10px;
+    }
+
+    .search-pill-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px 12px;
+      transition: all 0.2s;
+    }
+
+    .search-pill-box:focus-within {
+      background: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.12);
+    }
+
+    .search-pill-box input {
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: var(--text);
+      width: 100%;
+    }
+
+    /* Horizontal Category Scroller */
+    .scroll-strip-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .scroll-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 16px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .scroll-strip::-webkit-scrollbar { display: none; }
+
+    .category-chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .category-chip.active {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+      box-shadow: 0 3px 10px -2px rgba(30, 41, 59, 0.25);
+    }
+
+    /* Price / Filter Pills Strip */
+    .price-strip {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 0 16px 10px;
+      scrollbar-width: none;
+    }
+    .price-strip::-webkit-scrollbar { display: none; }
+
+    .price-chip {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .price-chip.active {
+      background: var(--accent-light);
+      color: var(--accent-hover);
+      border: 1px solid #f59e0b;
+      font-weight: 700;
+    }
+
+    /* Active Summary & Layout Toggle Row */
+    .meta-bar {
+      padding: 10px 16px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-count {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .result-count strong { color: #0f172a; }
+
+    .view-toggles {
+      display: flex;
+      gap: 4px;
+      background: #e2e8f0;
+      padding: 2px;
+      border-radius: 8px;
+    }
+
+    .view-btn {
+      border: none;
+      background: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .view-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* Product Grid — 2-Column Responsive Flow */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 6px 14px 80px;
+      transition: all 0.2s ease;
+    }
+
+    .product-grid.col-1 {
+      grid-template-columns: 1fr;
+    }
+
+    /* Product Card — Variant A (Modern Minimalist Pill Card) */
+    .prod-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .prod-card:active {
+      transform: scale(0.985);
+    }
+
+    .card-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #f1f5f9;
+      overflow: hidden;
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .wish-toggle {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .discount-pill {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #064e3b;
+      color: #a7f3d0;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Material Timber Swatches Strip */
+    .wood-swatches {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(6px);
+      padding: 3px 6px;
+      border-radius: 20px;
+      border: 1px solid rgba(226, 232, 240, 0.6);
+    }
+
+    .swatch-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .swatch-walnut { background: #5c3a21; }
+    .swatch-oak { background: #c29b63; }
+    .swatch-teak { background: #8f582a; }
+
+    /* Card Details */
+    .card-body {
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-cat {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.3em;
+    }
+
+    .card-price-row {
+      margin-top: auto;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .price-curr {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .price-orig {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+
+    .quick-add-btn {
+      width: 100%;
+      padding: 7px 0;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .quick-add-btn:active, .quick-add-btn:hover {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+    }
+
+    /* Floating Micro-Toast Feedback */
+    .mini-toast {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+    }
+
+    .mini-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Device Switcher Nav -->
+  <div class="device-toolbar">
+    <div>
+      <span style="color:#f59e0b; font-weight:700;">Variant A:</span> Sticky Pill Carousel + 2-Col Minimalist Cards
+    </div>
+    <a href="index.html">← Compare All Variants</a>
+  </div>
+
+  <!-- Mobile Phone Viewport -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 5G  100% 🔋</span>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-mark">Furni<span>Nest</span></div>
+      <div class="header-icons">
+        <button class="icon-btn" title="Search">🔍</button>
+        <button class="icon-btn" title="Wishlist">🤍<span class="badge-dot"></span></button>
+        <button class="icon-btn" title="Bag">🛍️</button>
+      </div>
+    </header>
+
+    <!-- Scroll View -->
+    <div class="content-scroll">
+      
+      <!-- Sticky Filter Complex -->
+      <div class="sticky-filter-wrapper">
+        
+        <!-- Search Row -->
+        <div class="search-row">
+          <div class="search-pill-box">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Search handcrafted solid wood..." oninput="handleSearch(this.value)">
+          </div>
+        </div>
+
+        <!-- 1. Category Horizontal Carousel -->
+        <div class="scroll-strip-wrap">
+          <div class="scroll-strip" id="catStrip">
+            <button class="category-chip active" onclick="setCategory('all', this)">✨ All Pieces</button>
+            <button class="category-chip" onclick="setCategory('living-room', this)">🛋️ Living Room</button>
+            <button class="category-chip" onclick="setCategory('bedroom', this)">🛏️ Bedroom</button>
+            <button class="category-chip" onclick="setCategory('dining-room', this)">🍽️ Dining Room</button>
+            <button class="category-chip" onclick="setCategory('home-office', this)">💼 Home Office</button>
+          </div>
+        </div>
+
+        <!-- 2. Budget Range Filter Strip -->
+        <div class="price-strip" id="priceStrip">
+          <button class="price-chip active" onclick="setPrice('all', this)">All Budgets</button>
+          <button class="price-chip" onclick="setPrice('under-20k', this)">Under ₹20,000</button>
+          <button class="price-chip" onclick="setPrice('20k-35k', this)">₹20,000 – ₹35,000</button>
+          <button class="price-chip" onclick="setPrice('above-35k', this)">Heirloom ₹35k+</button>
+        </div>
+
+      </div>
+
+      <!-- Result Meta Bar & Column View Toggle -->
+      <div class="meta-bar">
+        <span class="result-count">Showing <strong id="productCount">8</strong> curated designs</span>
+        <div class="view-toggles">
+          <button class="view-btn active" id="btn2Col" onclick="toggleLayout(2)">⊞ 2-Col</button>
+          <button class="view-btn" id="btn1Col" onclick="toggleLayout(1)">☰ 1-Col</button>
+        </div>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="product-grid" id="productGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+    </div>
+
+    <!-- Micro-Toast Alert -->
+    <div class="mini-toast" id="miniToast">
+      <span>✨</span> <span id="toastMsg">Added to your shopping bag</span>
+    </div>
+
+  </div>
+
+  <script>
+    const PRODUCTS = [
+      {
+        id: 1,
+        name: "Atelier Swivel Accent Chair",
+        category: "living-room",
+        catName: "Living Room",
+        price: 18999,
+        origPrice: 22499,
+        img: "https://images.unsplash.com/photo-1580481077195-c9a91345476f?auto=format&fit=crop&w=700&q=80",
+        wood: ["walnut", "oak"]
+      },
+      {
+        id: 2,
+        name: "Kyoto Low Floating Platform Bed",
+        category: "bedroom",
+        catName: "Bedroom",
+        price: 34999,
+        origPrice: 39999,
+        img: "https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=700&q=80",
+        wood: ["walnut", "teak"]
+      },
+      {
+        id: 3,
+        name: "Nordic Oval Solid Oak Dining Table",
+        category: "dining-room",
+        catName: "Dining Room",
+        price: 26500,
+        origPrice: 31000,
+        img: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=700&q=80",
+        wood: ["oak", "walnut"]
+      },
+      {
+        id: 4,
+        name: "Astral Ergonomic Task Chair",
+        category: "home-office",
+        catName: "Home Office",
+        price: 14500,
+        origPrice: 17200,
+        img: "https://images.unsplash.com/photo-1589384267710-7a25bc2174c3?auto=format&fit=crop&w=700&q=80",
+        wood: ["walnut"]
+      },
+      {
+        id: 5,
+        name: "Travertine Fluted Cocktail Table",
+        category: "living-room",
+        catName: "Living Room",
+        price: 13999,
+        origPrice: 16500,
+        img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=700&q=80",
+        wood: ["teak", "oak"]
+      },
+      {
+        id: 6,
+        name: "Malabar Cane Weave Sideboard",
+        category: "dining-room",
+        catName: "Dining Room",
+        price: 38000,
+        origPrice: 44000,
+        img: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=700&q=80",
+        wood: ["teak", "walnut"]
+      },
+      {
+        id: 7,
+        name: "Copenhagen Minimalist Ash Desk",
+        category: "home-office",
+        catName: "Home Office",
+        price: 19500,
+        origPrice: 23000,
+        img: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=700&q=80",
+        wood: ["oak"]
+      },
+      {
+        id: 8,
+        name: "Komorebi Fluted Walnut Nightstand",
+        category: "bedroom",
+        catName: "Bedroom",
+        price: 9800,
+        origPrice: 11500,
+        img: "https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=700&q=80",
+        wood: ["walnut"]
+      }
+    ];
+
+    let currentCategory = 'all';
+    let currentPrice = 'all';
+    let searchQuery = '';
+    const wishlist = new Set();
+
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      const filtered = PRODUCTS.filter(p => {
+        const matchCat = currentCategory === 'all' || p.category === currentCategory;
+        const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.catName.toLowerCase().includes(searchQuery.toLowerCase());
+        let matchPrice = true;
+        if (currentPrice === 'under-20k') matchPrice = p.price < 20000;
+        else if (currentPrice === '20k-35k') matchPrice = p.price >= 20000 && p.price <= 35000;
+        else if (currentPrice === 'above-35k') matchPrice = p.price > 35000;
+        return matchCat && matchSearch && matchPrice;
+      });
+
+      document.getElementById('productCount').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px 10px; color: #94a3b8;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🛋️</div>
+          <p style="font-weight: 600;">No pieces match your filters</p>
+          <button onclick="resetFilters()" style="margin-top: 10px; background: #1e293b; color: #fff; border:none; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; cursor:pointer;">Reset Filters</button>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => `
+        <div class="prod-card">
+          <div class="card-media">
+            <img src="${p.img}" alt="${p.name}">
+            <button class="wish-toggle" onclick="toggleWish(${p.id}, this)">
+              ${wishlist.has(p.id) ? '❤️' : '🤍'}
+            </button>
+            ${p.origPrice ? `<span class="discount-pill">Save ₹${(p.origPrice - p.price).toLocaleString('en-IN')}</span>` : ''}
+            
+            <div class="wood-swatches">
+              <span class="swatch-dot swatch-walnut" title="American Walnut"></span>
+              <span class="swatch-dot swatch-oak" title="White Oak"></span>
+              ${p.wood.includes('teak') ? '<span class="swatch-dot swatch-teak" title="Malabar Teak"></span>' : ''}
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="card-cat">${p.catName}</div>
+            <h4 class="card-title">${p.name}</h4>
+            <div class="card-price-row">
+              <span class="price-curr">₹${p.price.toLocaleString('en-IN')}</span>
+              ${p.origPrice ? `<span class="price-orig">₹${p.origPrice.toLocaleString('en-IN')}</span>` : ''}
+            </div>
+            <button class="quick-add-btn" onclick="quickAdd('${p.name}')">
+              <span>+ Add to Bag</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('#catStrip .category-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      renderProducts();
+    }
+
+    function setPrice(priceRange, btn) {
+      currentPrice = priceRange;
+      document.querySelectorAll('#priceStrip .price-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val;
+      renderProducts();
+    }
+
+    function toggleWish(id, btn) {
+      if (wishlist.has(id)) {
+        wishlist.delete(id);
+        btn.innerText = '🤍';
+        showToast('Removed from wishlist');
+      } else {
+        wishlist.add(id);
+        btn.innerText = '❤️';
+        showToast('Saved to your wishlist ❤️');
+      }
+    }
+
+    function quickAdd(name) {
+      showToast(`Added "${name.substring(0, 18)}..." to bag!`);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('miniToast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function toggleLayout(cols) {
+      const grid = document.getElementById('productGrid');
+      const b1 = document.getElementById('btn1Col');
+      const b2 = document.getElementById('btn2Col');
+      if (cols === 1) {
+        grid.classList.add('col-1');
+        b1.classList.add('active');
+        b2.classList.remove('active');
+      } else {
+        grid.classList.remove('col-1');
+        b2.classList.add('active');
+        b1.classList.remove('active');
+      }
+    }
+
+    function resetFilters() {
+      currentCategory = 'all';
+      currentPrice = 'all';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('#catStrip .category-chip').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('#priceStrip .price-chip').forEach((b, i) => b.classList.toggle('active', i === 0));
+      renderProducts();
+    }
+
+    // Initial load
+    renderProducts();
+  </script>
+</body>
+</html>
+

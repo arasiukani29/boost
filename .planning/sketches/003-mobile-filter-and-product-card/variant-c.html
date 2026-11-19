@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurniNest — Variant C: Floating Glass Dock & Interactive Swatch Cards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #b45309;
+      --accent-light: #fef3c7;
+      --bg-page: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --radius-card: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #020617;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px;
+    }
+
+    .device-toolbar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #94a3b8;
+      font-size: 0.82rem;
+    }
+    .device-toolbar a { color: #fef3c7; text-decoration: none; font-weight: 600; }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 870px;
+      background: var(--bg-page);
+      border-radius: 44px;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.5), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 110px;
+      height: 24px;
+      background: #000000;
+      border-radius: 20px;
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    .status-bar {
+      height: 42px;
+      padding: 10px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #1e293b;
+      z-index: 99;
+      background: #ffffff;
+    }
+
+    /* Header */
+    .app-header {
+      background: #ffffff;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .brand-mark span { color: var(--accent); }
+
+    /* Scrollable */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 14px 100px;
+    }
+
+    /* ══════════ FLOATING GLASS DOCK (BOTTOM) ══════════ */
+    .floating-dock-wrap {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+      z-index: 400;
+    }
+
+    .glass-dock {
+      background: rgba(30, 41, 59, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 6px 10px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 16px 35px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .dock-pill {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .dock-pill.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .dock-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.65rem;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dock Popup Overlay for Category Selection */
+    .dock-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+      padding: 12px;
+      display: none;
+      animation: popUp 0.2s ease-out forwards;
+    }
+    .dock-popup.open { display: block; }
+
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .popup-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .popup-chip {
+      padding: 6px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #f8fafc;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .popup-chip.active {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+    }
+
+    /* Product Cards */
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .c-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .c-media {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: #f1f5f9;
+      overflow: hidden;
+    }
+
+    .c-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: filter 0.3s ease;
+    }
+
+    .scarcity-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .c-wish {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* Interactive Swatch Dots that change the image tint/finish */
+    .swatch-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 3px 6px;
+      border-radius: 20px;
+    }
+
+    .swatch-item {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 1px solid #ffffff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .sw-walnut { background: #4a2f18; }
+    .sw-oak { background: #d7af73; }
+    .sw-ebony { background: #222222; }
+
+    .c-body {
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .c-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.2em;
+    }
+
+    .c-price-line {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-top: auto;
+      margin-bottom: 8px;
+    }
+    .c-price { font-size: 0.92rem; font-weight: 700; color: #0f172a; }
+    .c-orig { font-size: 0.7rem; color: #94a3b8; text-decoration: line-through; }
+
+    .c-add-btn {
+      width: 100%;
+      padding: 7px;
+      background: #1e293b;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .c-add-btn:active { background: #0f172a; }
+
+    /* Toast */
+    .mini-toast {
+      position: absolute;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 900;
+    }
+    .mini-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="device-toolbar">
+    <div>
+      <span style="color:#f59e0b; font-weight:700;">Variant C:</span> Floating Glass Dock + Swatch Switcher Cards
+    </div>
+    <a href="index.html">← Compare All Variants</a>
+  </div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 5G  100% 🔋</span>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-mark">Furni<span>Nest</span></div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent);">Atelier Collection</div>
+    </header>
+
+    <!-- Scroll Content -->
+    <div class="content-scroll">
+      <div style="font-size: 0.75rem; font-weight: 600; color:#64748b; margin-bottom: 12px; display:flex; justify-content:space-between;">
+        <span>Showing <strong id="cCount" style="color:#0f172a;">6</strong> handcrafted pieces</span>
+        <span>✨ FSC Solid Wood</span>
+      </div>
+
+      <div class="card-list" id="cardList">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ══════════ FLOATING GLASS DOCK (BOTTOM) ══════════ -->
+    <div class="floating-dock-wrap">
+      
+      <!-- Popup Drawer for Space / Category -->
+      <div class="dock-popup" id="catPopup">
+        <div style="font-size: 0.72rem; font-weight: 700; color:#64748b; margin-bottom: 8px; text-transform:uppercase;">Select Space</div>
+        <div class="popup-chips">
+          <button class="popup-chip active" onclick="selectCat('all', this)">All</button>
+          <button class="popup-chip" onclick="selectCat('living-room', this)">🛋️ Living</button>
+          <button class="popup-chip" onclick="selectCat('bedroom', this)">🛏️ Bedroom</button>
+          <button class="popup-chip" onclick="selectCat('dining-room', this)">🍽️ Dining</button>
+          <button class="popup-chip" onclick="selectCat('home-office', this)">💼 Office</button>
+        </div>
+      </div>
+
+      <!-- Dock Bar -->
+      <div class="glass-dock">
+        <button class="dock-pill active" onclick="togglePopup('catPopup', this)">
+          <span>🛋️ Spaces</span>
+        </button>
+        <button class="dock-pill" onclick="cycleSort(this)">
+          <span>↕️ Sort</span>
+        </button>
+        <button class="dock-pill" onclick="quickFilterBudget(this)">
+          <span>🏷️ Under ₹25k</span>
+        </button>
+        <button class="dock-pill" onclick="showToast('Bag contains 2 items')">
+          <span>🛍️</span>
+          <span class="dock-badge">2</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mini-toast" id="toast">
+      <span id="toastMsg">Added to shopping bag</span>
+    </div>
+
+  </div>
+
+  <script>
+    const DATA = [
+      {
+        id: 1,
+        name: "Atelier Swivel Accent Chair",
+        cat: "living-room",
+        price: 18999,
+        origPrice: 22499,
+        scarcity: "⚡ Only 2 in Stock",
+        img: "https://images.unsplash.com/photo-1580481077195-c9a91345476f?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 2,
+        name: "Kyoto Low Floating Bed",
+        cat: "bedroom",
+        price: 34999,
+        origPrice: 39999,
+        scarcity: "🌱 Made to Order",
+        img: "https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 3,
+        name: "Nordic Solid Oak Dining Table",
+        cat: "dining-room",
+        price: 26500,
+        origPrice: 31000,
+        scarcity: "⚡ 3 Left",
+        img: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 4,
+        name: "Astral Ergonomic Task Chair",
+        cat: "home-office",
+        price: 14500,
+        origPrice: 17200,
+        scarcity: "✨ Top Seller",
+        img: "https://images.unsplash.com/photo-1589384267710-7a25bc2174c3?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 5,
+        name: "Travertine Fluted Cocktail Table",
+        cat: "living-room",
+        price: 13999,
+        origPrice: 16500,
+        scarcity: "⚡ Low Stock",
+        img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=700&q=80"
+      },
+      {
+        id: 6,
+        name: "Komorebi Walnut Nightstand",
+        cat: "bedroom",
+        price: 9800,
+        origPrice: 11500,
+        scarcity: "🌱 Sustainable",
+        img: "https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=700&q=80"
+      }
+    ];
+
+    let activeCat = 'all';
+    let under25k = false;
+    const wish = new Set();
+
+    function render() {
+      const list = document.getElementById('cardList');
+      const filtered = DATA.filter(p => {
+        const catOk = activeCat === 'all' || p.cat === activeCat;
+        const budgetOk = !under25k || p.price < 25000;
+        return catOk && budgetOk;
+      });
+
+      document.getElementById('cCount').innerText = filtered.length;
+
+      list.innerHTML = filtered.map(p => `
+        <div class="c-card">
+          <div class="c-media">
+            <img src="${p.img}" alt="${p.name}" id="img-${p.id}">
+            <span class="scarcity-tag">${p.scarcity}</span>
+            <button class="c-wish" onclick="toggleWish(${p.id}, this)">
+              ${wish.has(p.id) ? '❤️' : '🤍'}
+            </button>
+            <div class="swatch-bar">
+              <span class="swatch-item sw-walnut" onclick="changeFinish(${p.id}, 'walnut')" title="Walnut Finish"></span>
+              <span class="swatch-item sw-oak" onclick="changeFinish(${p.id}, 'oak')" title="Natural Oak"></span>
+              <span class="swatch-item sw-ebony" onclick="changeFinish(${p.id}, 'ebony')" title="Charred Ebony"></span>
+            </div>
+          </div>
+
+          <div class="c-body">
+            <h4 class="c-title">${p.name}</h4>
+            <div class="c-price-line">
+              <span class="c-price">₹${p.price.toLocaleString('en-IN')}</span>
+              ${p.origPrice ? `<span class="c-orig">₹${p.origPrice.toLocaleString('en-IN')}</span>` : ''}
+            </div>
+            <button class="c-add-btn" onclick="showToast('Added ${p.name.substring(0, 16)}... to bag')">+ Quick Add</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function togglePopup(id, btn) {
+      const popup = document.getElementById(id);
+      popup.classList.toggle('open');
+      btn.classList.toggle('active', popup.classList.contains('open'));
+    }
+
+    function selectCat(cat, btn) {
+      activeCat = cat;
+      document.querySelectorAll('.popup-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('catPopup').classList.remove('open');
+      render();
+    }
+
+    function quickFilterBudget(btn) {
+      under25k = !under25k;
+      btn.classList.toggle('active', under25k);
+      render();
+      showToast(under25k ? 'Showing pieces under ₹25,000' : 'Showing all budgets');
+    }
+
+    function cycleSort(btn) {
+      DATA.reverse();
+      render();
+      showToast('Sort order toggled');
+    }
+
+    function changeFinish(id, finish) {
+      const img = document.getElementById(`img-${id}`);
+      if (finish === 'walnut') img.style.filter = 'sepia(0.2) contrast(1.05)';
+      else if (finish === 'oak') img.style.filter = 'brightness(1.08) saturate(1.1)';
+      else if (finish === 'ebony') img.style.filter = 'grayscale(0.7) contrast(1.2)';
+      showToast(`Selected ${finish} timber finish`);
+    }
+
+    function toggleWish(id, btn) {
+      if (wish.has(id)) {
+        wish.delete(id);
+        btn.innerText = '🤍';
+        showToast('Removed from wishlist');
+      } else {
+        wish.add(id);
+        btn.innerText = '❤️';
+        showToast('Saved to wishlist ❤️');
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    render();
+  </script>
+</body>
+</html>
+
