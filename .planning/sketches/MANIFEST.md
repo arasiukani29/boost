@@ -26,3 +26,30 @@
 ### Index Hub
 * Open **[index.html](file:///d:/boost/.planning/sketches/001-hero-day-night-wood-swatches/index.html)** to review all 3 variants side-by-side.
 
+---
+
+## 003-mobile-filter-and-product-card
+* **Idea:** Design an improved mobile filter bar and product card layout for FurniNest
+* **Date:** 2026-11-05
+* **Target Project:** FurniNest (Angular 21 + .NET 10 luxury furniture platform)
+* **Status:** Wrapped Up (Approved)
+* **Winner:** **Variant C** — Chosen for its floating glassmorphic bottom dock (optimal one-handed thumb ergonomics) and interactive timber swatches (live finish photo switcher).
+* **Wrap-Up Spec:** [WRAP-UP.md](file:///d:/boost/.planning/sketches/003-mobile-filter-and-product-card/WRAP-UP.md)
+* **Index Hub:** [index.html](file:///d:/boost/.planning/sketches/003-mobile-filter-and-product-card/index.html)
+
+### Variants
+1. **[Variant A: Sticky Pill Carousel & Minimalist Cards](file:///d:/boost/.planning/sketches/003-mobile-filter-and-product-card/variant-a.html)**
+   * Single-line horizontal swipeable chip carousels for Spaces and Budgets.
+   * Eliminates multi-line wrapping on mobile screens completely.
+   * 2-column responsive layout with 1-col / 2-col toggle switch.
+   * Card timber swatches and instant `+ Add to Bag` action.
+2. **[Variant B: Bottom Sheet Drawer & Editorial Story Cards](file:///d:/boost/.planning/sketches/003-mobile-filter-and-product-card/variant-b.html)**
+   * Ultra-compact filter anchor bar freeing 95% of screen height for pieces.
+   * "Filter & Sort" trigger button reveals an iOS-style bottom sheet drawer with investment price slider and hardwood species selectors.
+   * Full-width editorial cards with dimensions tag (`📐 W: 82cm • D: 78cm • H: 86cm`), craft badge, and dual CTA.
+3. **[Variant C: Floating Glass Dock & Swatch Switcher](file:///d:/boost/.planning/sketches/003-mobile-filter-and-product-card/variant-c.html)**
+   * Bottom floating glassmorphic dock optimized for one-handed thumb ergonomics.
+   * Interactive timber swatch dots directly swap image finish/tint on tap (Walnut / Oak / Ebony).
+   * Live scarcity urgency tags (`⚡ Only 2 in Stock`) and inline space popup drawer.
+
+

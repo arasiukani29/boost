@@ -86,3 +86,6 @@ $RECYCLE.BIN/
 *.pem
 *.key
 
+
+# Standalone Frontend Git Backup
+.git_frontend_repo_backup/
